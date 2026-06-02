@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Make More - O.A.R.M.M [ВСЕ РАБОТАЮТ]</title>
+    <title>Make More - O.A.R.M.M [ДОХОД ЗА КЛИК]</title>
     <style>
         * {
             user-select: none;
@@ -41,7 +41,7 @@
         }
 
         .badge {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+            background: linear-gradient(135deg, #FF5722, #FF0000);
             color: white;
             padding: 6px 15px;
             border-radius: 30px;
@@ -49,6 +49,12 @@
             font-weight: bold;
             display: inline-block;
             margin-bottom: 10px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
         }
 
         h1 {
@@ -143,7 +149,7 @@
 
         .bonus-text {
             font-size: 0.65rem;
-            color: #FFA500;
+            color: #00FF00;
             margin-top: 5px;
         }
 
@@ -500,9 +506,9 @@
 <body>
 <div class="game-container">
     <div class="game">
-        <div class="badge">✅ 1 КЛИК = 1 МОНЕТА ✅</div>
+        <div class="badge">⚡ УВЕЛИЧИВАЙ СИЛУ КЛИКА ⚡</div>
         <h1>💰 O.A.R.M.M 💰</h1>
-        <div class="sub">все сотрудники работают!</div>
+        <div class="sub">каждый сотрудник увеличивает доход за клик!</div>
 
         <div class="balance">
             <div class="balance-label">💰 КАПИТАЛ 💰</div>
@@ -513,13 +519,13 @@
             <button class="main-button" id="clickBtn">💎</button>
             <div class="click-info">
                 <div class="click-power">
-                    💰 ЗА КЛИК: <span id="perClick">1</span> 💰
+                    💰 ДОХОД ЗА КЛИК: <span id="perClick">1</span> 💰
                 </div>
                 <div class="click-detail">
-                    Каждый клик приносит 1 монету
+                    Каждый клик приносит указанное количество монет
                 </div>
                 <div class="bonus-text" id="bonusText">
-                    💡 Покупай сотрудников, они приносят пассивный доход!
+                    ⚡ Покупай сотрудников, чтобы увеличить доход за клик!
                 </div>
             </div>
         </div>
@@ -530,8 +536,8 @@
                 <div class="stat-value" id="totalClicks">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">АВТО/СЕК</div>
-                <div class="stat-value" id="autoIncome">0</div>
+                <div class="stat-label">СИЛА КЛИКА</div>
+                <div class="stat-value" id="clickPowerStat">1</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">ПРОГРЕСС</div>
@@ -557,7 +563,7 @@
             <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
         <div class="info-text">
-            💰 1 клик = 1 монета | Сотрудники работают и приносят доход автоматически!
+            ⚡ Каждый нанятый сотрудник УВЕЛИЧИВАЕТ доход за клик! Нанять можно до 10 уровня.
         </div>
     </div>
 </div>
@@ -598,9 +604,9 @@
 </div>
 
 <script>
-    // ИГРОВЫЕ ДАННЫЕ - 1 КЛИК = 1 МОНЕТА
+    // ИГРОВЫЕ ДАННЫЕ
     let money = 0;
-    let clickPower = 1;
+    let clickPower = 1;  // Базовая сила клика
     let totalClicks = 0;
     let playerName = '';
     let playerId = '';
@@ -650,6 +656,7 @@
             name: playerName,
             money: money,
             clicks: totalClicks,
+            clickPower: clickPower,
             timestamp: Date.now()
         };
         
@@ -686,6 +693,7 @@
             name: playerName,
             money: money,
             clicks: totalClicks,
+            clickPower: clickPower,
             timestamp: Date.now()
         });
     }
@@ -728,17 +736,17 @@
         document.getElementById('updateInfo').innerHTML = `👥 Всего игроков: ${sorted.length} | Обновлено: ${new Date().toLocaleTimeString()}`;
     }
 
-    // ВСЕ СОТРУДНИКИ РАБОТАЮТ И ПРИНОСЯТ ПАССИВНЫЙ ДОХОД!
+    // ВСЕ СОТРУДНИКИ УВЕЛИЧИВАЮТ ДОХОД ЗА КЛИК!
     const upgrades = [
-        { id: 'emp1', name: 'Максим', desc: '+1 монета/сек', type: 'auto', baseCost: 500, basePower: 1, maxLevel: 10, emoji: '🤝', count: 0 },
-        { id: 'emp2', name: 'Родион', desc: '+3 монеты/сек', type: 'auto', baseCost: 2000, basePower: 3, maxLevel: 9, emoji: '⚡', count: 0 },
-        { id: 'emp3', name: 'Миша', desc: '+8 монет/сек', type: 'auto', baseCost: 8000, basePower: 8, maxLevel: 8, emoji: '🚀', count: 0 },
-        { id: 'emp4', name: 'Супер-Миша', desc: '+20 монет/сек', type: 'auto', baseCost: 25000, basePower: 20, maxLevel: 7, emoji: '💎', count: 0 },
-        { id: 'emp5', name: 'Адиль', desc: '+50 монет/сек', type: 'auto', baseCost: 80000, basePower: 50, maxLevel: 7, emoji: '📀', count: 0 },
-        { id: 'emp6', name: 'Супер-Адиль', desc: '+120 монет/сек', type: 'auto', baseCost: 200000, basePower: 120, maxLevel: 6, emoji: '💿', count: 0 },
-        { id: 'emp7', name: 'Ораз', desc: '+250 монет/сек', type: 'auto', baseCost: 400000, basePower: 250, maxLevel: 6, emoji: '🏭', count: 0 },
-        { id: 'emp8', name: 'Супер-Ораз', desc: '+600 монет/сек', type: 'auto', baseCost: 800000, basePower: 600, maxLevel: 5, emoji: '🏭💎', count: 0 },
-        { id: 'emp9', name: 'Мега-Директор', desc: '+1200 монет/сек', type: 'auto', baseCost: 1500000, basePower: 1200, maxLevel: 5, emoji: '👑', count: 0 }
+        { id: 'emp1', name: 'Максим', desc: '+1 к силе клика', type: 'click', baseCost: 500, basePower: 1, maxLevel: 10, emoji: '🤝', count: 0 },
+        { id: 'emp2', name: 'Родион', desc: '+3 к силе клика', type: 'click', baseCost: 2000, basePower: 3, maxLevel: 9, emoji: '⚡', count: 0 },
+        { id: 'emp3', name: 'Миша', desc: '+8 к силе клика', type: 'click', baseCost: 8000, basePower: 8, maxLevel: 8, emoji: '🚀', count: 0 },
+        { id: 'emp4', name: 'Супер-Миша', desc: '+20 к силе клика', type: 'click', baseCost: 25000, basePower: 20, maxLevel: 7, emoji: '💎', count: 0 },
+        { id: 'emp5', name: 'Адиль', desc: '+50 к силе клика', type: 'click', baseCost: 80000, basePower: 50, maxLevel: 7, emoji: '📀', count: 0 },
+        { id: 'emp6', name: 'Супер-Адиль', desc: '+120 к силе клика', type: 'click', baseCost: 200000, basePower: 120, maxLevel: 6, emoji: '💿', count: 0 },
+        { id: 'emp7', name: 'Ораз', desc: '+250 к силе клика', type: 'click', baseCost: 400000, basePower: 250, maxLevel: 6, emoji: '🏭', count: 0 },
+        { id: 'emp8', name: 'Супер-Ораз', desc: '+600 к силе клика', type: 'click', baseCost: 800000, basePower: 600, maxLevel: 5, emoji: '🏭💎', count: 0 },
+        { id: 'emp9', name: 'Мега-Директор', desc: '+1200 к силе клика', type: 'click', baseCost: 1500000, basePower: 1200, maxLevel: 5, emoji: '👑', count: 0 }
     ];
 
     // Расчёт реальной силы с учётом уменьшения после 5 уровня
@@ -750,6 +758,18 @@
 
     function getCurrentPower(upgrade) {
         return getActualPower(upgrade.basePower, upgrade.count);
+    }
+
+    // Пересчёт общей силы клика
+    function recalcClickPower() {
+        let total = 1; // Базовая сила клика
+        for(let up of upgrades) {
+            if(up.type === 'click') {
+                total += getCurrentPower(up) * up.count;
+            }
+        }
+        clickPower = total;
+        return clickPower;
     }
 
     // Расчёт стоимости следующего уровня
@@ -778,6 +798,7 @@
         const saveData = {
             money: money,
             totalClicks: totalClicks,
+            clickPower: clickPower,
             upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
         };
         localStorage.setItem('makeMore_save', JSON.stringify(saveData));
@@ -798,6 +819,7 @@
                     if(savedUp) upgrades[i].count = savedUp.count;
                 }
             }
+            recalcClickPower();
             updateUI();
             updatePlayerInLeaderboard();
             showNotification(`📂 Загружено! Капитал: ${formatNumber(money)}`);
@@ -811,25 +833,33 @@
     function updateUI() {
         document.getElementById('balance').innerText = formatNumber(money);
         document.getElementById('perClick').innerText = clickPower;
+        document.getElementById('clickPowerStat').innerText = clickPower;
         document.getElementById('totalClicks').innerText = totalClicks;
         
-        // Расчёт общего пассивного дохода
-        let autoIncome = 0;
+        // Расчёт прогресса
         let totalLevels = 0;
         let maxPossibleLevels = 0;
         
         for(let up of upgrades) {
-            autoIncome += getCurrentPower(up) * up.count;
             totalLevels += up.count;
             maxPossibleLevels += up.maxLevel;
         }
         
         const progressPercent = maxPossibleLevels > 0 ? Math.floor((totalLevels / maxPossibleLevels) * 100) : 0;
-        document.getElementById('autoIncome').innerText = autoIncome;
         document.getElementById('progressPercent').innerText = progressPercent + '%';
         
         const rank = getPlayerRank();
         document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
+        
+        // Бонусный текст
+        const bonusText = document.getElementById('bonusText');
+        if (clickPower > 1) {
+            bonusText.innerHTML = `⚡ Сотрудники дают +${clickPower - 1} к силе клика! Всего: ${clickPower} монет за клик! ⚡`;
+            bonusText.style.color = '#00FF00';
+        } else {
+            bonusText.innerHTML = '⚡ Покупай сотрудников, чтобы увеличить доход за клик! ⚡';
+            bonusText.style.color = '#FFA500';
+        }
         
         // Обновление списка сотрудников
         const container = document.getElementById('upgradesList');
@@ -846,14 +876,20 @@
             div.className = `upgrade ${isMaxed ? 'max-level' : ''}`;
             
             let powerDisplay = `${currentPowerValue}`;
-            if (isMaxed) powerDisplay = `MAX ${currentPowerValue}`;
-            else if (isDiminishing) powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
+            let bonusInfo = '';
+            if (isMaxed) {
+                powerDisplay = `MAX ${currentPowerValue}`;
+                bonusInfo = ' 👑';
+            } else if (isDiminishing) {
+                powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
+                bonusInfo = ' ⚠️ -40%';
+            }
             
             div.innerHTML = `
                 <div class="upgrade-info">
                     <div class="upgrade-name">${up.emoji} ${up.name}</div>
                     <div class="upgrade-desc">+${up.desc}</div>
-                    <div class="upgrade-stats">📊 ур.${up.count}/${up.maxLevel} | +${powerDisplay}/сек</div>
+                    <div class="upgrade-stats">📊 ур.${up.count}/${up.maxLevel} | +${powerDisplay}${bonusInfo}</div>
                 </div>
                 <div class="upgrade-cost">💰 ${isMaxed ? 'MAX' : formatNumber(cost)}</div>
                 <button class="buy-btn ${isMaxed ? 'maxed' : (canBuy ? '' : 'disabled')}" data-id="${up.id}" ${isMaxed ? 'disabled' : ''}>${isMaxed ? '👑 MAX' : 'Нанять'}</button>
@@ -882,10 +918,11 @@
         if(money >= cost) {
             money -= cost;
             upgrade.count++;
+            recalcClickPower();
             updateUI();
             saveGame();
-            showFloatingText(`Ур.${upgrade.count}`, document.getElementById('clickBtn'));
-            showNotification(`✅ ${upgrade.name} нанят! Теперь он приносит +${getCurrentPower(upgrade)} монет/сек!`);
+            showFloatingText(`+${getCurrentPower(upgrade)}`, document.getElementById('clickBtn'));
+            showNotification(`✅ ${upgrade.name} нанят! Теперь +${getCurrentPower(upgrade)} к силе клика!`);
         } else {
             const btn = document.querySelector(`.buy-btn[data-id="${upgrade.id}"]`);
             if(btn) btn.classList.add('shake');
@@ -894,12 +931,12 @@
         }
     }
 
-    // 1 КЛИК = 1 МОНЕТА
+    // КЛИК - ДОБАВЛЯЕТ clickPower МОНЕТ
     function handleClick() {
-        money += 1;
+        money += clickPower;
         totalClicks++;
         updateUI();
-        showFloatingText('+1', document.getElementById('clickBtn'));
+        showFloatingText(`+${clickPower}`, document.getElementById('clickBtn'));
         const btn = document.getElementById('clickBtn');
         btn.style.transform = 'scale(0.96)';
         setTimeout(() => btn.style.transform = '', 80);
@@ -916,37 +953,16 @@
         setTimeout(() => div.remove(), 700);
     }
 
-    let autoIncomeInterval = null;
-    
-    // АВТОМАТИЧЕСКИЙ ДОХОД ОТ СОТРУДНИКОВ
-    function startAutoIncome() {
-        if(autoIncomeInterval) clearInterval(autoIncomeInterval);
-        autoIncomeInterval = setInterval(() => {
-            let autoMoney = 0;
-            for(let up of upgrades) {
-                autoMoney += getCurrentPower(up) * up.count;
-            }
-            if(autoMoney > 0) {
-                money += autoMoney;
-                updateUI();
-                // Показываем всплывающую сумму пассивного дохода
-                const balanceEl = document.getElementById('balance');
-                if(balanceEl && autoMoney > 0) {
-                    showFloatingText(`+${autoMoney} (авто)`, balanceEl);
-                }
-            }
-        }, 1000);
-    }
-
     function resetGame() {
         if(confirm('💀 НАЧАТЬ ВСЁ ЗАНОВО? Весь прогресс будет сброшен! 💀')) {
             money = 0;
             totalClicks = 0;
             for(let up of upgrades) up.count = 0;
+            recalcClickPower();
             updateUI();
             updatePlayerInLeaderboard();
             saveGame();
-            showNotification('🔄 Игра перезапущена! 1 клик = 1 монета');
+            showNotification('🔄 Игра перезапущена! Сила клика: 1');
         }
     }
 
@@ -962,8 +978,8 @@
     function init() {
         loadGlobalLeaderboard();
         loadGame();
+        recalcClickPower();
         updateUI();
-        startAutoIncome();
         updatePlayerInLeaderboard();
         
         document.getElementById('clickBtn').addEventListener('click', handleClick);
@@ -976,7 +992,7 @@
         
         window.addEventListener('beforeunload', () => { updatePlayerInLeaderboard(); saveGame(); });
         
-        setTimeout(() => showNotification('💼 Все сотрудники работают и приносят пассивный доход!'), 500);
+        setTimeout(() => showNotification('⚡ Каждый сотрудник УВЕЛИЧИВАЕТ доход за клик!'), 500);
     }
 
     init();
