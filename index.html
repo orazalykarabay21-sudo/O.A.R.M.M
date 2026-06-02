@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Make More - O.A.R.M.M [ХАРДКОР]</title>
+    <title>Make More - O.A.R.M.M [СОХРАНЕНИЕ]</title>
     <style>
         * {
             user-select: none;
@@ -205,7 +205,7 @@
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
-            max-height: 380px;
+            max-height: 350px;
             overflow-y: auto;
             padding-right: 5px;
         }
@@ -297,22 +297,56 @@
             cursor: not-allowed;
         }
 
-        .reset-btn {
-            background: linear-gradient(135deg, #8b3c3c, #6b2c2c);
+        .save-controls {
+            display: flex;
+            gap: 10px;
             margin-top: 15px;
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #2c5f8a, #1a3a5c);
             padding: 10px;
             border: none;
             border-radius: 35px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            width: 100%;
-            font-size: 0.9rem;
+            flex: 1;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
         }
 
-        .reset-btn:active {
+        .save-btn:active {
             transform: scale(0.98);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #8b3c3c, #6b2c2c);
+            padding: 10px;
+            border: none;
+            border-radius: 35px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
         }
 
         @keyframes float {
@@ -423,7 +457,7 @@
     <div class="game">
         <div class="hard-mode-badge">⚠️ ХАРДКОР РЕЖИМ ⚠️</div>
         <h1>💰 O.A.R.M.M 💰</h1>
-        <div class="sub">экстремальная экономика</div>
+        <div class="sub">с автосохранением</div>
 
         <div class="balance">
             <div class="balance-label">💰 КАПИТАЛ 💰</div>
@@ -454,10 +488,16 @@
 
         <div class="upgrades" id="upgradesList"></div>
 
-        <button class="reset-btn" id="resetBtn">🔄 НОВАЯ ИГРА</button>
+        <div class="save-controls">
+            <button class="save-btn" id="saveBtn">💾 СОХРАНИТЬ</button>
+            <button class="save-btn" id="loadBtn">📂 ЗАГРУЗИТЬ</button>
+            <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
+        </div>
         <div class="warning">💀 Цены: 1к → 5к → 15к → 25к → 50к 💀</div>
     </div>
 </div>
+
+<div id="saveIndicator" class="save-indicator" style="display: none;">💾 Сохранено!</div>
 
 <script>
     // ИГРОВЫЕ ДАННЫЕ
@@ -465,7 +505,7 @@
     let clickPower = 1;
     let totalClicks = 0;
 
-    // Улучшения с увеличенными ценами
+    // Улучшения
     const upgrades = [
         { id: 'click1', name: 'Максим', desc: '+5 к клику', baseCost: 1000, power: 5, type: 'click', count: 0, emoji: '🤝' },
         { id: 'click2', name: 'Родион', desc: '+15 к клику', baseCost: 5000, power: 15, type: 'click', count: 0, emoji: '⚡' },
@@ -474,6 +514,9 @@
         { id: 'auto1', name: 'Адиль', desc: '+25/сек', baseCost: 8000, power: 25, type: 'auto', count: 0, emoji: '📀' },
         { id: 'auto2', name: 'Ораз', desc: '+100/сек', baseCost: 50000, power: 100, type: 'auto', count: 0, emoji: '🏭' }
     ];
+
+    // Несколько слотов сохранения
+    let currentSlot = 1;
 
     function getCost(upgrade) {
         return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.5));
@@ -485,29 +528,66 @@
         return Math.floor(num).toString();
     }
 
-    function saveGame() {
+    function showSaveIndicator() {
+        const indicator = document.getElementById('saveIndicator');
+        indicator.style.display = 'block';
+        setTimeout(() => {
+            indicator.style.display = 'none';
+        }, 1500);
+    }
+
+    // СОХРАНЕНИЕ в localStorage
+    function saveGame(slot = 1) {
         const saveData = {
+            version: '1.0',
+            timestamp: Date.now(),
             money: money,
             clickPower: clickPower,
             totalClicks: totalClicks,
-            upgrades: upgrades.map(up => ({ count: up.count }))
+            upgrades: upgrades.map(up => ({ 
+                id: up.id,
+                count: up.count 
+            }))
         };
-        localStorage.setItem('makeMoreHardSave', JSON.stringify(saveData));
+        
+        localStorage.setItem(`makeMore_slot_${slot}`, JSON.stringify(saveData));
+        
+        // Показать индикатор сохранения
+        showSaveIndicator();
+        showNotification(`💾 Игра сохранена в слот ${slot}!`, false);
+        
+        // Сохраняем какой слот был последним
+        localStorage.setItem('makeMore_lastSlot', slot);
+        
+        return true;
     }
 
-    function loadGame() {
-        const saved = localStorage.getItem('makeMoreHardSave');
-        if (!saved) return false;
+    // ЗАГРУЗКА из localStorage
+    function loadGame(slot = null) {
+        let loadSlot = slot;
+        if (loadSlot === null) {
+            loadSlot = localStorage.getItem('makeMore_lastSlot') || 1;
+        }
+        
+        const saved = localStorage.getItem(`makeMore_slot_${loadSlot}`);
+        if (!saved) {
+            showNotification(`❌ Слот ${loadSlot} пуст! Сначала сохраните игру.`, true);
+            return false;
+        }
+        
         try {
             const data = JSON.parse(saved);
             money = data.money;
             clickPower = data.clickPower;
             totalClicks = data.totalClicks || 0;
+            
             if(data.upgrades && data.upgrades.length === upgrades.length) {
                 for(let i = 0; i < upgrades.length; i++) {
                     upgrades[i].count = data.upgrades[i].count;
                 }
             }
+            
+            // Пересчёт силы клика
             let newClickPower = 1;
             for(let up of upgrades) {
                 if(up.type === 'click') {
@@ -515,8 +595,83 @@
                 }
             }
             clickPower = newClickPower;
+            
+            updateUI();
+            currentSlot = loadSlot;
+            
+            const date = new Date(data.timestamp);
+            showNotification(`📂 Загружен слот ${loadSlot} от ${date.toLocaleTimeString()}`, false);
             return true;
-        } catch(e) { return false; }
+        } catch(e) {
+            showNotification('❌ Ошибка загрузки сохранения!', true);
+            return false;
+        }
+    }
+
+    // Автосохранение
+    let autoSaveInterval = null;
+    
+    function startAutoSave() {
+        if(autoSaveInterval) clearInterval(autoSaveInterval);
+        autoSaveInterval = setInterval(() => {
+            saveGame(currentSlot);
+        }, 30000); // Автосохранение каждые 30 секунд
+    }
+
+    // Экспорт сохранения в файл
+    function exportSave() {
+        const saveData = {
+            money: money,
+            clickPower: clickPower,
+            totalClicks: totalClicks,
+            upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
+        };
+        
+        const dataStr = JSON.stringify(saveData, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        
+        const exportFileDefaultName = `oarmm_save_${new Date().toISOString().slice(0,19)}.json`;
+        
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+        
+        showNotification('📁 Сохранение экспортировано в файл!', false);
+    }
+
+    // Импорт сохранения из файла
+    function importSave(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                money = data.money;
+                clickPower = data.clickPower;
+                totalClicks = data.totalClicks || 0;
+                
+                if(data.upgrades && data.upgrades.length === upgrades.length) {
+                    for(let i = 0; i < upgrades.length; i++) {
+                        upgrades[i].count = data.upgrades[i].count;
+                    }
+                }
+                
+                let newClickPower = 1;
+                for(let up of upgrades) {
+                    if(up.type === 'click') {
+                        newClickPower += up.count * up.power;
+                    }
+                }
+                clickPower = newClickPower;
+                
+                updateUI();
+                saveGame(currentSlot);
+                showNotification('📁 Импорт выполнен успешно!', false);
+            } catch(e) {
+                showNotification('❌ Ошибка импорта файла!', true);
+            }
+        };
+        reader.readAsText(file);
     }
 
     function showNotification(text, isError = false) {
@@ -528,8 +683,6 @@
         document.body.appendChild(notification);
         setTimeout(() => notification.remove(), 2300);
     }
-
-    let autoInterval = null;
 
     function updateUI() {
         document.getElementById('balance').innerText = formatNumber(money);
@@ -590,7 +743,7 @@
             }
             
             updateUI();
-            saveGame();
+            saveGame(currentSlot);
             showFloatingText(`+${upgrade.power}`, document.getElementById('clickBtn'));
         } else {
             const btn = document.querySelector(`.buy-btn[data-id="${upgrade.id}"]`);
@@ -606,7 +759,6 @@
         money += clickPower;
         totalClicks++;
         updateUI();
-        saveGame();
         showFloatingText(`+${clickPower}`, document.getElementById('clickBtn'));
         const btn = document.getElementById('clickBtn');
         btn.style.transform = 'scale(0.96)';
@@ -625,8 +777,8 @@
     }
 
     function startAutoIncome() {
-        if(autoInterval) clearInterval(autoInterval);
-        autoInterval = setInterval(() => {
+        if(autoSaveInterval) clearInterval(autoSaveInterval);
+        autoSaveInterval = setInterval(() => {
             let autoMoney = 0;
             for(let up of upgrades) {
                 if(up.type === 'auto') {
@@ -636,7 +788,6 @@
             if(autoMoney > 0) {
                 money += autoMoney;
                 updateUI();
-                saveGame();
             }
         }, 1000);
     }
@@ -650,23 +801,58 @@
                 up.count = 0;
             }
             updateUI();
-            saveGame();
-            showNotification('🔄 Игра перезапущена! Удачи!');
+            saveGame(currentSlot);
+            showNotification('🔄 Игра перезапущена! Прогресс сохранён.');
         }
     }
 
+    function showSlotSelector() {
+        const slot = prompt('Выберите слот сохранения (1-5):', currentSlot);
+        const slotNum = parseInt(slot);
+        if(slotNum >= 1 && slotNum <= 5) {
+            currentSlot = slotNum;
+            loadGame(currentSlot);
+            showNotification(`Выбран слот ${currentSlot}`);
+        } else if(slot !== null) {
+            showNotification('❌ Неверный номер слота! Используйте 1-5', true);
+        }
+    }
+
+    // Инициализация
+    let autoIncomeInterval = null;
+    
     function init() {
-        loadGame();
-        updateUI();
+        // Пытаемся загрузить последнее сохранение
+        const lastSlot = localStorage.getItem('makeMore_lastSlot');
+        if(lastSlot) {
+            currentSlot = parseInt(lastSlot);
+            loadGame(currentSlot);
+        } else {
+            updateUI();
+        }
+        
         startAutoIncome();
+        startAutoSave();
         
         document.getElementById('clickBtn').addEventListener('click', handleClick);
+        document.getElementById('saveBtn').addEventListener('click', () => saveGame(currentSlot));
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            if(confirm('Загрузить последнее сохранение? Несохранённый прогресс будет потерян!')) {
+                loadGame(currentSlot);
+            }
+        });
         document.getElementById('resetBtn').addEventListener('click', resetGame);
         
-        window.addEventListener('beforeunload', () => saveGame());
+        // Доп. кнопки для слотов (двойной клик по балансу)
+        const balanceEl = document.querySelector('.balance');
+        balanceEl.addEventListener('dblclick', showSlotSelector);
+        
+        window.addEventListener('beforeunload', () => {
+            saveGame(currentSlot);
+        });
         
         setTimeout(() => {
-            showNotification('💎 Начни кликать! Цели: 1к → 5к → 15к → 25к → 50к');
+            showNotification('💾 Игра автосохраняется каждые 30 сек! Двойной клик по балансу - выбор слота');
         }, 500);
     }
 
