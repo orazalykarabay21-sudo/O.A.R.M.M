@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Make More - O.A.R.M.M [ТАБЛИЦА ЛИДЕРОВ]</title>
+    <title>Make More - O.A.R.M.M [ЦЕНЫ 500 - 1.5М]</title>
     <style>
         * {
             user-select: none;
@@ -20,8 +20,6 @@
             align-items: center;
             font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
             padding: 15px;
-            position: relative;
-            overflow-x: hidden;
         }
 
         .game-container {
@@ -29,7 +27,6 @@
             border-radius: 40px;
             padding: 15px;
             backdrop-filter: blur(8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             width: 100%;
             max-width: 650px;
         }
@@ -39,13 +36,12 @@
             background: linear-gradient(135deg, rgba(20,20,35,0.96), rgba(15,15,25,0.98));
             border-radius: 35px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
             text-align: center;
             border: 1px solid rgba(255,215,0,0.15);
         }
 
-        .hard-mode-badge {
-            background: linear-gradient(135deg, #FF0000, #8B0000);
+        .badge {
+            background: linear-gradient(135deg, #FF5722, #FF0000);
             color: white;
             padding: 6px 15px;
             border-radius: 30px;
@@ -68,14 +64,12 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            letter-spacing: 2px;
         }
 
         .sub {
             color: #888;
             margin-bottom: 15px;
             font-size: 0.75rem;
-            letter-spacing: 1px;
         }
 
         .balance {
@@ -83,26 +77,7 @@
             border-radius: 60px;
             padding: 12px 20px;
             margin-bottom: 15px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.3);
             border: 1px solid rgba(255,215,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .balance::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%);
-            animation: rotate 10s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         .balance-label {
@@ -110,8 +85,6 @@
             color: #FFD700;
             letter-spacing: 2px;
             font-weight: bold;
-            position: relative;
-            z-index: 1;
         }
 
         .balance-amount {
@@ -121,8 +94,6 @@
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            position: relative;
-            z-index: 1;
             font-family: 'Monaco', monospace;
         }
 
@@ -140,13 +111,10 @@
             font-weight: bold;
             color: white;
             cursor: pointer;
-            box-shadow: 0 12px 0 #B8860B, 0 8px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 12px 0 #B8860B;
             transition: 0.05s linear;
             margin: 10px auto;
             display: block;
-            font-family: monospace;
-            position: relative;
-            overflow: hidden;
         }
 
         .main-button:active {
@@ -154,15 +122,35 @@
             box-shadow: 0 6px 0 #B8860B;
         }
 
-        .per-click {
+        .click-info {
             background: linear-gradient(135deg, #2a2a35, #1e1e28);
-            padding: 8px;
+            padding: 12px;
             border-radius: 40px;
-            margin-top: 8px;
-            font-size: 0.9rem;
-            color: #FFD700;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .click-power {
+            font-size: 1.3rem;
             font-weight: bold;
-            border: 1px solid rgba(255,215,0,0.2);
+            color: #FFD700;
+        }
+
+        .click-power span {
+            font-size: 2rem;
+            color: #FFD700;
+        }
+
+        .click-detail {
+            font-size: 0.7rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        .bonus-text {
+            font-size: 0.65rem;
+            color: #FFA500;
+            margin-top: 5px;
         }
 
         .stats {
@@ -176,7 +164,6 @@
             background: linear-gradient(135deg, #1a1a24, #12121a);
             padding: 8px;
             border-radius: 15px;
-            border: 1px solid rgba(255,215,0,0.15);
         }
 
         .stat-label {
@@ -193,69 +180,51 @@
 
         .button-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin: 10px 0;
+            flex-wrap: wrap;
         }
 
-        .leaderboard-btn {
+        .leaderboard-btn, .share-btn, .import-btn {
             background: linear-gradient(135deg, #FF8C00, #FF5722);
-            padding: 10px;
+            padding: 8px 12px;
             border: none;
             border-radius: 35px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             flex: 1;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            font-size: 0.75rem;
         }
 
-        .leaderboard-btn:active {
-            transform: scale(0.98);
-        }
+        .share-btn { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
+        .import-btn { background: linear-gradient(135deg, #2196F3, #0D47A1); }
 
         .upgrades {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
-            max-height: 350px;
+            max-height: 300px;
             overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .upgrades::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .upgrades::-webkit-scrollbar-track {
-            background: #1a1a24;
-            border-radius: 10px;
-        }
-
-        .upgrades::-webkit-scrollbar-thumb {
-            background: #FFD700;
-            border-radius: 10px;
         }
 
         .upgrade {
             background: linear-gradient(135deg, #1a1a28, #12121e);
             border-radius: 18px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(255,215,0,0.15);
-            gap: 8px;
+            gap: 6px;
             flex-wrap: wrap;
             position: relative;
+            border: 1px solid rgba(255,215,0,0.15);
         }
 
         .upgrade.max-level {
             border: 2px solid #FFD700;
             background: linear-gradient(135deg, #2a2a38, #1a1a2a);
-            opacity: 0.95;
         }
 
         .upgrade.max-level::after {
@@ -265,46 +234,41 @@
             right: 10px;
             background: linear-gradient(135deg, #FFD700, #FFA500);
             color: #1a1a2e;
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             font-weight: bold;
             padding: 2px 8px;
             border-radius: 20px;
-            z-index: 1;
         }
 
         .upgrade-info {
             text-align: left;
             flex: 2;
-            min-width: 120px;
+            min-width: 100px;
         }
 
         .upgrade-name {
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #FFD700;
         }
 
         .upgrade-desc {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #aaa;
         }
 
         .upgrade-stats {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #FFA500;
-        }
-
-        .upgrade-stats.diminishing {
-            color: #FF6666;
         }
 
         .upgrade-cost {
             background: linear-gradient(135deg, #8B0000, #CC0000);
-            padding: 6px 12px;
+            padding: 4px 10px;
             border-radius: 25px;
             font-weight: bold;
             color: #FFD700;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             min-width: 75px;
             text-align: center;
         }
@@ -313,17 +277,12 @@
             background: linear-gradient(135deg, #4CAF50, #45a049);
             border: none;
             color: white;
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.1s ease;
-            font-size: 0.8rem;
-            min-width: 70px;
-        }
-
-        .buy-btn:active {
-            transform: scale(0.95);
+            font-size: 0.7rem;
+            min-width: 60px;
         }
 
         .buy-btn.disabled {
@@ -341,41 +300,24 @@
 
         .save-controls {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
-        .save-btn {
-            background: linear-gradient(135deg, #2c5f8a, #1a3a5c);
-            padding: 10px;
+        .save-btn, .reset-btn {
+            padding: 8px;
             border: none;
             border-radius: 35px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             flex: 1;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
+            font-size: 0.75rem;
         }
 
-        .save-btn:active {
-            transform: scale(0.98);
-        }
+        .save-btn { background: linear-gradient(135deg, #2c5f8a, #1a3a5c); }
+        .reset-btn { background: linear-gradient(135deg, #8b3c3c, #6b2c2c); }
 
-        .reset-btn {
-            background: linear-gradient(135deg, #8b3c3c, #6b2c2c);
-            padding: 10px;
-            border: none;
-            border-radius: 35px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            flex: 1;
-            font-size: 0.85rem;
-            transition: all 0.2s ease;
-        }
-
-        /* Модальное окно лидеров */
         .modal {
             display: none;
             position: fixed;
@@ -383,11 +325,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.95);
             z-index: 2000;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(5px);
         }
 
         .modal.active {
@@ -400,17 +341,16 @@
             padding: 20px;
             width: 90%;
             max-width: 500px;
-            max-height: 80%;
+            max-height: 85%;
             overflow-y: auto;
             border: 2px solid #FFD700;
-            box-shadow: 0 0 30px rgba(255,215,0,0.3);
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid #FFD700;
         }
@@ -418,7 +358,7 @@
         .modal-header h2 {
             color: #FFD700;
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
         }
 
         .close-modal {
@@ -430,7 +370,6 @@
             border-radius: 50%;
             font-size: 1.2rem;
             cursor: pointer;
-            font-weight: bold;
         }
 
         .leaderboard-list {
@@ -441,69 +380,61 @@
 
         .leaderboard-item {
             background: linear-gradient(135deg, #1a1a28, #12121e);
-            padding: 12px 15px;
-            margin-bottom: 8px;
+            padding: 10px 12px;
+            margin-bottom: 6px;
             border-radius: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid rgba(255,215,0,0.2);
         }
 
-        .leaderboard-item.top1 {
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #1a1a2e;
-        }
+        .leaderboard-item.top1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a1a2e; }
+        .leaderboard-item.top2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); }
+        .leaderboard-item.top3 { background: linear-gradient(135deg, #CD7F32, #B8860B); }
+        .current-player { background: linear-gradient(135deg, #2a5f8a, #1a3a5c); border: 2px solid #FFD700; }
 
-        .leaderboard-item.top1 .rank, 
-        .leaderboard-item.top1 .player-name,
-        .leaderboard-item.top1 .player-money {
-            color: #1a1a2e;
-            font-weight: bold;
-        }
+        .rank { font-size: 1.1rem; font-weight: bold; width: 45px; }
+        .player-name { flex: 2; font-weight: bold; font-size: 0.85rem; }
+        .player-money { font-weight: bold; font-family: monospace; font-size: 0.8rem; color: #FFD700; }
 
-        .leaderboard-item.top2 {
-            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-        }
-
-        .leaderboard-item.top3 {
-            background: linear-gradient(135deg, #CD7F32, #B8860B);
-        }
-
-        .rank {
-            font-size: 1.3rem;
-            font-weight: bold;
-            width: 50px;
-        }
-
-        .player-name {
-            flex: 2;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-
-        .player-money {
-            font-weight: bold;
+        .code-area {
+            background: #0a0a0f;
+            padding: 12px;
+            border-radius: 15px;
+            margin: 15px 0;
+            word-break: break-all;
             font-family: monospace;
-            color: #FFD700;
-        }
-
-        .current-player {
-            background: linear-gradient(135deg, #2a5f8a, #1a3a5c);
-            border: 2px solid #FFD700;
-        }
-
-        .update-leaderboard {
             font-size: 0.7rem;
-            color: #aaa;
-            text-align: center;
-            margin-top: 15px;
+            border: 1px solid #FFD700;
+        }
+
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        .import-input {
+            width: 100%;
+            padding: 10px;
+            background: #0a0a0f;
+            border: 1px solid #FFD700;
+            border-radius: 15px;
+            color: white;
+            font-family: monospace;
+            font-size: 0.7rem;
+            margin: 10px 0;
         }
 
         .info-text {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #FFA500;
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
             background: rgba(0,0,0,0.3);
             padding: 5px;
@@ -519,25 +450,23 @@
             position: fixed;
             pointer-events: none;
             font-weight: bold;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             background: linear-gradient(135deg, #FFD700, #FFA500);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 10px rgba(0,0,0,0.5);
             z-index: 1000;
             animation: float 0.7s ease-out forwards;
-            font-family: monospace;
+        }
+
+        .shake {
+            animation: shakeAnim 0.15s ease-in-out;
         }
 
         @keyframes shakeAnim {
             0%, 100% { transform: translateX(0); }
             25% { transform: translateX(-4px); }
             75% { transform: translateX(4px); }
-        }
-
-        .shake {
-            animation: shakeAnim 0.15s ease-in-out;
         }
 
         .notification {
@@ -549,78 +478,37 @@
             padding: 8px 16px;
             border-radius: 30px;
             font-weight: bold;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2.5s forwards;
             z-index: 1000;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         }
 
         @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         @keyframes fadeOut {
-            to {
-                opacity: 0;
-                visibility: hidden;
-            }
+            to { opacity: 0; visibility: hidden; }
         }
 
         @media (max-width: 550px) {
-            .game {
-                padding: 15px;
-            }
-            
-            .main-button {
-                width: 130px;
-                height: 130px;
-                font-size: 2.5rem;
-            }
-            
-            .balance-amount {
-                font-size: 2.2rem;
-            }
-            
-            .upgrade {
-                padding: 8px 10px;
-            }
-            
-            .upgrade-cost {
-                font-size: 0.7rem;
-                padding: 4px 8px;
-                min-width: 65px;
-            }
-            
-            .buy-btn {
-                padding: 5px 12px;
-                font-size: 0.7rem;
-                min-width: 60px;
-            }
-            
-            .stats {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 5px;
-            }
-            
-            .stat-value {
-                font-size: 0.75rem;
-            }
+            .game { padding: 15px; }
+            .main-button { width: 120px; height: 120px; font-size: 2.2rem; }
+            .balance-amount { font-size: 2rem; }
+            .click-power span { font-size: 1.5rem; }
+            .stats { gap: 5px; }
+            .stat-value { font-size: 0.7rem; }
+            .upgrade-cost { min-width: 65px; font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="game">
-        <div class="hard-mode-badge">⚠️ ТАБЛИЦА ЛИДЕРОВ ⚠️</div>
+        <div class="badge">💰 ЦЕНЫ: 500 - 1.500.000 💰</div>
         <h1>💰 O.A.R.M.M 💰</h1>
-        <div class="sub">соревнуйся с другими игроками!</div>
+        <div class="sub">премиум экономика</div>
 
         <div class="balance">
             <div class="balance-label">💰 КАПИТАЛ 💰</div>
@@ -629,8 +517,16 @@
 
         <div class="click-area">
             <button class="main-button" id="clickBtn">💎</button>
-            <div class="per-click">
-                ⚡ +<span id="perClick">1</span> за клик
+            <div class="click-info">
+                <div class="click-power">
+                    💰 ЗА КЛИК: <span id="perClick">1</span> 💰
+                </div>
+                <div class="click-detail">
+                    Каждый клик приносит 1 монету
+                </div>
+                <div class="bonus-text" id="bonusText">
+                    💡 Покупай сотрудников, чтобы увеличить пассивный доход!
+                </div>
             </div>
         </div>
 
@@ -654,7 +550,9 @@
         </div>
 
         <div class="button-row">
-            <button class="leaderboard-btn" id="leaderboardBtn">🏆 ТАБЛИЦА ЛИДЕРОВ 🏆</button>
+            <button class="leaderboard-btn" id="leaderboardBtn">🏆 ЛИДЕРЫ</button>
+            <button class="share-btn" id="shareBtn">📤 ПОДЕЛИТЬСЯ</button>
+            <button class="import-btn" id="importBtn">📥 ДОБАВИТЬ ДРУГА</button>
         </div>
 
         <div class="upgrades" id="upgradesList"></div>
@@ -665,36 +563,55 @@
             <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
         <div class="info-text">
-            👥 Ваши данные сохраняются в таблицу лидеров! Соревнуйтесь с другими!
+            💰 Цены на сотрудников: от 500 до 1.500.000 монет
         </div>
     </div>
 </div>
 
-<!-- Модальное окно таблицы лидеров -->
 <div id="leaderboardModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>🏆 ТАБЛИЦА ЛИДЕРОВ 🏆</h2>
             <button class="close-modal" onclick="closeLeaderboard()">✕</button>
         </div>
-        <div id="leaderboardList" class="leaderboard-list">
-            <!-- Список лидеров будет загружаться сюда -->
+        <div id="leaderboardList" class="leaderboard-list"></div>
+        <div class="update-leaderboard" id="updateInfo"></div>
+    </div>
+</div>
+
+<div id="shareModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📤 ПОДЕЛИТЬСЯ ПРОГРЕССОМ</h2>
+            <button class="close-modal" onclick="closeShareModal()">✕</button>
         </div>
-        <div class="update-leaderboard" id="updateInfo">
-            Обновлено: --
+        <div class="code-area" id="shareCode">Загрузка...</div>
+        <button class="copy-btn" onclick="copyShareCode()">📋 КОПИРОВАТЬ КОД</button>
+        <div class="info-text">Отправьте этот код другу! Он сможет добавить вас в таблицу лидеров.</div>
+    </div>
+</div>
+
+<div id="importModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>📥 ДОБАВИТЬ ДРУГА</h2>
+            <button class="close-modal" onclick="closeImportModal()">✕</button>
         </div>
+        <textarea id="importCode" class="import-input" rows="3" placeholder="Вставьте код друга..."></textarea>
+        <button class="copy-btn" onclick="importFriend()">➕ ДОБАВИТЬ В ТАБЛИЦУ</button>
+        <div class="info-text">Вставьте код, который дал вам друг, чтобы увидеть его в таблице лидеров!</div>
     </div>
 </div>
 
 <script>
-    // ИГРОВЫЕ ДАННЫЕ
+    // ИГРОВЫЕ ДАННЫЕ - 1 КЛИК = 1 МОНЕТА
     let money = 0;
     let clickPower = 1;
     let totalClicks = 0;
     let playerName = '';
     let playerId = '';
+    let globalLeaderboard = [];
 
-    // Генерация уникального ID игрока
     function generatePlayerId() {
         let id = localStorage.getItem('playerId');
         if (!id) {
@@ -704,7 +621,6 @@
         return id;
     }
 
-    // Получение имени игрока
     function getPlayerName() {
         let name = localStorage.getItem('playerName');
         if (!name) {
@@ -718,80 +634,23 @@
     playerId = generatePlayerId();
     playerName = getPlayerName();
 
-    const DIMINISH_START = 5;
-
-    // Работники
-    const upgrades = [
-        { id: 'click1', name: 'Максим', desc: '+5 к клику', type: 'click', baseCost: 1000, basePower: 5, maxLevel: 10, emoji: '🤝', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'click2', name: 'Родион', desc: '+15 к клику', type: 'click', baseCost: 5000, basePower: 15, maxLevel: 9, emoji: '⚡', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'click3', name: 'Миша', desc: '+40 к клику', type: 'click', baseCost: 15000, basePower: 40, maxLevel: 8, emoji: '🚀', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'click4', name: 'Супер-Миша', desc: '+100 к клику', type: 'click', baseCost: 25000, basePower: 100, maxLevel: 7, emoji: '💎', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'auto1', name: 'Адиль', desc: '+25/сек', type: 'auto', baseCost: 8000, basePower: 25, maxLevel: 9, emoji: '📀', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'auto2', name: 'Супер-Адиль', desc: '+60/сек', type: 'auto', baseCost: 20000, basePower: 60, maxLevel: 8, emoji: '💿', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'auto3', name: 'Ораз', desc: '+100/сек', type: 'auto', baseCost: 50000, basePower: 100, maxLevel: 8, emoji: '🏭', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'auto4', name: 'Супер-Ораз', desc: '+200/сек', type: 'auto', baseCost: 100000, basePower: 200, maxLevel: 7, emoji: '🏭💎', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'auto5', name: 'Мега-Директор', desc: '+500/сек', type: 'auto', baseCost: 250000, basePower: 500, maxLevel: 6, emoji: '👑', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
-        { id: 'click5', name: 'Легендарный Макс', desc: '+300 к клику', type: 'click', baseCost: 150000, basePower: 300, maxLevel: 6, emoji: '⭐', count: 0,
-          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } }
-    ];
-
-    function getActualPower(basePower, level, maxLevel) {
-        if (level <= DIMINISH_START) return basePower;
-        return Math.floor(basePower * 0.5);
-    }
-
-    function recalcClickPower() {
-        let total = 1;
-        for(let up of upgrades) {
-            if(up.type === 'click') {
-                total += up.currentPower();
-            }
-        }
-        clickPower = total;
-        return clickPower;
-    }
-
-    function getCost(upgrade) {
-        let multiplier = upgrade.count >= DIMINISH_START ? 0.7 : 1;
-        return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.4 * multiplier));
-    }
-
-    function formatNumber(num) {
-        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-        return Math.floor(num).toString();
-    }
-
-    // РАБОТА С ТАБЛИЦЕЙ ЛИДЕРОВ (localStorage)
-    function getLeaderboard() {
-        const leaderboard = localStorage.getItem('oarmm_leaderboard');
-        if (!leaderboard) return [];
-        try {
-            return JSON.parse(leaderboard);
-        } catch(e) {
-            return [];
+    function loadGlobalLeaderboard() {
+        const saved = localStorage.getItem('oarmm_global_leaderboard');
+        if (saved) {
+            try {
+                globalLeaderboard = JSON.parse(saved);
+            } catch(e) { globalLeaderboard = []; }
         }
     }
 
-    function saveLeaderboard(leaderboard) {
-        leaderboard.sort((a, b) => b.money - a.money);
-        leaderboard = leaderboard.slice(0, 50); // Храним топ 50
-        localStorage.setItem('oarmm_leaderboard', JSON.stringify(leaderboard));
+    function saveGlobalLeaderboard() {
+        globalLeaderboard.sort((a, b) => b.money - a.money);
+        globalLeaderboard = globalLeaderboard.slice(0, 100);
+        localStorage.setItem('oarmm_global_leaderboard', JSON.stringify(globalLeaderboard));
     }
 
-    function updateLeaderboard() {
-        const leaderboard = getLeaderboard();
-        const existingIndex = leaderboard.findIndex(p => p.id === playerId);
-        
+    function updatePlayerInLeaderboard() {
+        const existingIndex = globalLeaderboard.findIndex(p => p.id === playerId);
         const playerData = {
             id: playerId,
             name: playerName,
@@ -801,28 +660,54 @@
         };
         
         if (existingIndex !== -1) {
-            leaderboard[existingIndex] = playerData;
+            globalLeaderboard[existingIndex] = playerData;
         } else {
-            leaderboard.push(playerData);
+            globalLeaderboard.push(playerData);
         }
-        
-        saveLeaderboard(leaderboard);
+        saveGlobalLeaderboard();
+    }
+
+    function addFriendFromCode(code) {
+        try {
+            const friendData = JSON.parse(code);
+            if (friendData.id && friendData.name) {
+                const existingIndex = globalLeaderboard.findIndex(p => p.id === friendData.id);
+                if (existingIndex !== -1) {
+                    globalLeaderboard[existingIndex] = friendData;
+                } else {
+                    globalLeaderboard.push(friendData);
+                }
+                saveGlobalLeaderboard();
+                showNotification(`✅ ${friendData.name} добавлен!`);
+                return true;
+            }
+        } catch(e) {}
+        showNotification('❌ Неверный код!', true);
+        return false;
+    }
+
+    function getShareCode() {
+        return JSON.stringify({
+            id: playerId,
+            name: playerName,
+            money: money,
+            clicks: totalClicks,
+            timestamp: Date.now()
+        });
     }
 
     function getPlayerRank() {
-        const leaderboard = getLeaderboard();
-        const sorted = [...leaderboard].sort((a, b) => b.money - a.money);
+        const sorted = [...globalLeaderboard].sort((a, b) => b.money - a.money);
         const rank = sorted.findIndex(p => p.id === playerId) + 1;
         return rank > 0 ? rank : '-';
     }
 
     function displayLeaderboard() {
-        const leaderboard = getLeaderboard();
-        const sorted = [...leaderboard].sort((a, b) => b.money - a.money);
+        const sorted = [...globalLeaderboard].sort((a, b) => b.money - a.money);
         const container = document.getElementById('leaderboardList');
         
         if (sorted.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет игроков. Будьте первым!</div>';
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет игроков. Поделитесь кодом!</div>';
             return;
         }
         
@@ -836,11 +721,7 @@
             if (rank === 2) item.classList.add('top2');
             if (rank === 3) item.classList.add('top3');
             
-            let medal = '';
-            if (rank === 1) medal = '🥇';
-            else if (rank === 2) medal = '🥈';
-            else if (rank === 3) medal = '🥉';
-            else medal = `${rank}`;
+            let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}`;
             
             item.innerHTML = `
                 <div class="rank">${medal}</div>
@@ -850,17 +731,40 @@
             container.appendChild(item);
         });
         
-        document.getElementById('updateInfo').innerHTML = `Обновлено: ${new Date().toLocaleTimeString()} | Всего игроков: ${sorted.length}`;
+        document.getElementById('updateInfo').innerHTML = `👥 Игроков: ${sorted.length} | ${new Date().toLocaleTimeString()}`;
     }
 
-    function showLeaderboard() {
-        updateLeaderboard();
-        displayLeaderboard();
-        document.getElementById('leaderboardModal').classList.add('active');
+    // НОВЫЕ ЦЕНЫ НА СОТРУДНИКОВ (от 500 до 1.500.000)
+    const upgrades = [
+        { id: 'auto1', name: 'Максим', desc: '+1/сек', type: 'auto', baseCost: 500, basePower: 1, maxLevel: 10, emoji: '🤝', count: 0 },
+        { id: 'auto2', name: 'Родион', desc: '+3/сек', type: 'auto', baseCost: 2000, basePower: 3, maxLevel: 9, emoji: '⚡', count: 0 },
+        { id: 'auto3', name: 'Миша', desc: '+8/сек', type: 'auto', baseCost: 8000, basePower: 8, maxLevel: 8, emoji: '🚀', count: 0 },
+        { id: 'auto4', name: 'Супер-Миша', desc: '+20/сек', type: 'auto', baseCost: 25000, basePower: 20, maxLevel: 7, emoji: '💎', count: 0 },
+        { id: 'auto5', name: 'Адиль', desc: '+50/сек', type: 'auto', baseCost: 80000, basePower: 50, maxLevel: 6, emoji: '📀', count: 0 },
+        { id: 'auto6', name: 'Супер-Адиль', desc: '+120/сек', type: 'auto', baseCost: 200000, basePower: 120, maxLevel: 6, emoji: '💿', count: 0 },
+        { id: 'auto7', name: 'Ораз', desc: '+250/сек', type: 'auto', baseCost: 400000, basePower: 250, maxLevel: 5, emoji: '🏭', count: 0 },
+        { id: 'auto8', name: 'Супер-Ораз', desc: '+600/сек', type: 'auto', baseCost: 800000, basePower: 600, maxLevel: 5, emoji: '🏭💎', count: 0 },
+        { id: 'auto9', name: 'Мега-Директор', desc: '+1200/сек', type: 'auto', baseCost: 1500000, basePower: 1200, maxLevel: 5, emoji: '👑', count: 0 }
+    ];
+
+    function getActualPower(basePower, level) {
+        if (level <= 5) return basePower;
+        return Math.floor(basePower * 0.6);
     }
 
-    function closeLeaderboard() {
-        document.getElementById('leaderboardModal').classList.remove('active');
+    function getCurrentPower(upgrade) {
+        return getActualPower(upgrade.basePower, upgrade.count);
+    }
+
+    function getCost(upgrade) {
+        let multiplier = upgrade.count >= 5 ? 0.8 : 1;
+        return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.25 * multiplier));
+    }
+
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        return Math.floor(num).toString();
     }
 
     function showNotification(text, isError = false) {
@@ -875,44 +779,33 @@
 
     function saveGame() {
         const saveData = {
-            version: '4.0',
-            timestamp: Date.now(),
             money: money,
-            clickPower: clickPower,
             totalClicks: totalClicks,
             upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
         };
-        localStorage.setItem('makeMore_leaderboard_save', JSON.stringify(saveData));
-        updateLeaderboard();
-        showNotification('💾 Игра сохранена!', false);
+        localStorage.setItem('makeMore_save', JSON.stringify(saveData));
+        updatePlayerInLeaderboard();
+        showNotification('💾 Игра сохранена!');
     }
 
     function loadGame() {
-        const saved = localStorage.getItem('makeMore_leaderboard_save');
-        if (!saved) {
-            showNotification('❌ Нет сохранений!', true);
-            return false;
-        }
+        const saved = localStorage.getItem('makeMore_save');
+        if (!saved) return false;
         try {
             const data = JSON.parse(saved);
             money = data.money;
             totalClicks = data.totalClicks || 0;
-            
-            if(data.upgrades && data.upgrades.length === upgrades.length) {
+            if(data.upgrades) {
                 for(let i = 0; i < upgrades.length; i++) {
-                    upgrades[i].count = data.upgrades[i].count;
+                    const savedUp = data.upgrades.find(u => u.id === upgrades[i].id);
+                    if(savedUp) upgrades[i].count = savedUp.count;
                 }
             }
-            
-            recalcClickPower();
             updateUI();
-            updateLeaderboard();
-            showNotification(`📂 Загружено! Капитал: ${formatNumber(money)}`, false);
+            updatePlayerInLeaderboard();
+            showNotification(`📂 Загружено! Капитал: ${formatNumber(money)}`);
             return true;
-        } catch(e) {
-            showNotification('❌ Ошибка загрузки!', true);
-            return false;
-        }
+        } catch(e) { return false; }
     }
 
     function updateUI() {
@@ -923,21 +816,16 @@
         let autoIncome = 0;
         let totalLevels = 0;
         let maxPossibleLevels = 0;
-        let hiredCount = 0;
         
         for(let up of upgrades) {
-            if(up.type === 'auto') {
-                autoIncome += up.currentPower() * up.count;
-            }
+            autoIncome += getCurrentPower(up) * up.count;
             totalLevels += up.count;
             maxPossibleLevels += up.maxLevel;
-            if(up.count > 0) hiredCount++;
         }
         
         const progressPercent = maxPossibleLevels > 0 ? Math.floor((totalLevels / maxPossibleLevels) * 100) : 0;
         document.getElementById('autoIncome').innerText = autoIncome;
         document.getElementById('progressPercent').innerText = progressPercent + '%';
-        document.getElementById('totalHired') && (document.getElementById('totalHired').innerText = `${hiredCount}/${upgrades.length}`);
         
         const rank = getPlayerRank();
         document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
@@ -949,35 +837,24 @@
             const cost = getCost(up);
             const isMaxed = up.count >= up.maxLevel;
             const canBuy = money >= cost && !isMaxed;
-            const currentPowerValue = up.currentPower();
-            const isDiminishing = up.count >= DIMINISH_START && up.count < up.maxLevel;
+            const currentPowerValue = getCurrentPower(up);
+            const isDiminishing = up.count >= 5 && up.count < up.maxLevel;
             
             const div = document.createElement('div');
             div.className = `upgrade ${isMaxed ? 'max-level' : ''}`;
             
             let powerDisplay = `${currentPowerValue}`;
-            let powerClass = '';
-            
-            if (isMaxed) {
-                powerDisplay = `MAX ${currentPowerValue}`;
-            } else if (isDiminishing) {
-                powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
-                powerClass = 'diminishing';
-            }
+            if (isMaxed) powerDisplay = `MAX ${currentPowerValue}`;
+            else if (isDiminishing) powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
             
             div.innerHTML = `
                 <div class="upgrade-info">
                     <div class="upgrade-name">${up.emoji} ${up.name}</div>
                     <div class="upgrade-desc">+${up.desc}</div>
-                    <div class="upgrade-stats ${powerClass}">
-                        📊 ур.${up.count}/${up.maxLevel} | +${powerDisplay}
-                    </div>
+                    <div class="upgrade-stats">📊 ур.${up.count}/${up.maxLevel} | +${powerDisplay}</div>
                 </div>
                 <div class="upgrade-cost">💰 ${isMaxed ? 'MAX' : formatNumber(cost)}</div>
-                <button class="buy-btn ${isMaxed ? 'maxed' : (canBuy ? '' : 'disabled')}" 
-                        data-id="${up.id}" ${isMaxed ? 'disabled' : ''}>
-                    ${isMaxed ? '👑 MAX' : 'Нанять'}
-                </button>
+                <button class="buy-btn ${isMaxed ? 'maxed' : (canBuy ? '' : 'disabled')}" data-id="${up.id}" ${isMaxed ? 'disabled' : ''}>${isMaxed ? '👑 MAX' : 'Нанять'}</button>
             `;
             container.appendChild(div);
         }
@@ -1003,39 +880,24 @@
         if(money >= cost) {
             money -= cost;
             upgrade.count++;
-            
-            const newPower = upgrade.currentPower();
-            const isDiminishing = upgrade.count >= DIMINISH_START;
-            const isMax = upgrade.count === upgrade.maxLevel;
-            
-            if (isMax) {
-                showNotification(`👑 ПОЗДРАВЛЯЮ! ${upgrade.name} достиг МАКСИМАЛЬНОГО уровня!`, false);
-            } else if (isDiminishing && upgrade.count === DIMINISH_START) {
-                showNotification(`⚠️ ${upgrade.name} достиг ${DIMINISH_START} уровня! Эффективность снижена!`, false);
-            } else {
-                showNotification(`✅ ${upgrade.name} улучшен до ${upgrade.count} уровня!`, false);
-            }
-            
-            if(upgrade.type === 'click') recalcClickPower();
-            
             updateUI();
             saveGame();
             showFloatingText(`Ур.${upgrade.count}`, document.getElementById('clickBtn'));
+            showNotification(`✅ ${upgrade.name} улучшен до ${upgrade.count} уровня!`);
         } else {
             const btn = document.querySelector(`.buy-btn[data-id="${upgrade.id}"]`);
-            if(btn) {
-                btn.classList.add('shake');
-                setTimeout(() => btn.classList.remove('shake'), 200);
-            }
+            if(btn) btn.classList.add('shake');
+            setTimeout(() => btn.classList.remove('shake'), 200);
             showNotification(`❌ Не хватает ${formatNumber(cost - money)} монет`, true);
         }
     }
 
+    // 1 КЛИК = 1 МОНЕТА
     function handleClick() {
-        money += clickPower;
+        money += 1;
         totalClicks++;
         updateUI();
-        showFloatingText(`+${clickPower}`, document.getElementById('clickBtn'));
+        showFloatingText('+1', document.getElementById('clickBtn'));
         const btn = document.getElementById('clickBtn');
         btn.style.transform = 'scale(0.96)';
         setTimeout(() => btn.style.transform = '', 80);
@@ -1059,9 +921,7 @@
         autoIncomeInterval = setInterval(() => {
             let autoMoney = 0;
             for(let up of upgrades) {
-                if(up.type === 'auto') {
-                    autoMoney += up.currentPower() * up.count;
-                }
+                autoMoney += getCurrentPower(up) * up.count;
             }
             if(autoMoney > 0) {
                 money += autoMoney;
@@ -1071,49 +931,44 @@
     }
 
     function resetGame() {
-        if(confirm('💀 НАЧАТЬ ВСЁ ЗАНОВО? Ваше место в таблице лидеров обновится! 💀')) {
+        if(confirm('💀 НАЧАТЬ ВСЁ ЗАНОВО? Весь прогресс будет сброшен! 💀')) {
             money = 0;
             totalClicks = 0;
-            for(let up of upgrades) {
-                up.count = 0;
-            }
-            recalcClickPower();
+            for(let up of upgrades) up.count = 0;
             updateUI();
-            updateLeaderboard();
+            updatePlayerInLeaderboard();
             saveGame();
-            showNotification('🔄 Игра перезапущена!');
+            showNotification('🔄 Игра перезапущена! 1 клик = 1 монета');
         }
     }
 
-    // Автообновление таблицы лидеров каждые 30 секунд
-    setInterval(() => {
-        if (money > 0) {
-            updateLeaderboard();
-            const rank = getPlayerRank();
-            document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
-        }
-    }, 30000);
+    function showLeaderboard() { updatePlayerInLeaderboard(); displayLeaderboard(); document.getElementById('leaderboardModal').classList.add('active'); }
+    function closeLeaderboard() { document.getElementById('leaderboardModal').classList.remove('active'); }
+    function showShareModal() { document.getElementById('shareCode').innerText = getShareCode(); document.getElementById('shareModal').classList.add('active'); }
+    function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
+    function copyShareCode() { navigator.clipboard.writeText(document.getElementById('shareCode').innerText); showNotification('📋 Код скопирован!'); }
+    function showImportModal() { document.getElementById('importModal').classList.add('active'); }
+    function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
+    function importFriend() { const code = document.getElementById('importCode').value; if(code.trim()) { addFriendFromCode(code); document.getElementById('importCode').value = ''; closeImportModal(); } else { showNotification('❌ Введите код друга!', true); } }
 
     function init() {
+        loadGlobalLeaderboard();
         loadGame();
-        recalcClickPower();
         updateUI();
         startAutoIncome();
+        updatePlayerInLeaderboard();
         
         document.getElementById('clickBtn').addEventListener('click', handleClick);
         document.getElementById('saveBtn').addEventListener('click', saveGame);
         document.getElementById('loadBtn').addEventListener('click', loadGame);
         document.getElementById('resetBtn').addEventListener('click', resetGame);
         document.getElementById('leaderboardBtn').addEventListener('click', showLeaderboard);
+        document.getElementById('shareBtn').addEventListener('click', showShareModal);
+        document.getElementById('importBtn').addEventListener('click', showImportModal);
         
-        window.addEventListener('beforeunload', () => {
-            updateLeaderboard();
-            saveGame();
-        });
+        window.addEventListener('beforeunload', () => { updatePlayerInLeaderboard(); saveGame(); });
         
-        setTimeout(() => {
-            showNotification('🏆 Соревнуйтесь с другими игроками в таблице лидеров!');
-        }, 500);
+        setTimeout(() => showNotification('💰 Новые цены: от 500 до 1.500.000 монет!'), 500);
     }
 
     init();
