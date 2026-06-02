@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Make More - O.A.R.M.M [ДОХОД ЗА КЛИК]</title>
+    <title>Make More - O.A.R.M.M [ТАБЛИЦА ЛИДЕРОВ]</title>
     <style>
         * {
             user-select: none;
@@ -182,30 +182,26 @@
             display: flex;
             gap: 8px;
             margin: 10px 0;
-            flex-wrap: wrap;
         }
 
-        .leaderboard-btn, .share-btn, .import-btn {
+        .leaderboard-btn {
             background: linear-gradient(135deg, #FF8C00, #FF5722);
-            padding: 8px 12px;
+            padding: 10px;
             border: none;
             border-radius: 35px;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            flex: 1;
-            font-size: 0.75rem;
+            width: 100%;
+            font-size: 0.9rem;
         }
-
-        .share-btn { background: linear-gradient(135deg, #4CAF50, #2E7D32); }
-        .import-btn { background: linear-gradient(135deg, #2196F3, #0D47A1); }
 
         .upgrades {
             display: flex;
             flex-direction: column;
             gap: 10px;
             margin-top: 15px;
-            max-height: 300px;
+            max-height: 280px;
             overflow-y: auto;
         }
 
@@ -397,40 +393,6 @@
         .player-name { flex: 2; font-weight: bold; font-size: 0.85rem; }
         .player-money { font-weight: bold; font-family: monospace; font-size: 0.8rem; color: #FFD700; }
 
-        .code-area {
-            background: #0a0a0f;
-            padding: 12px;
-            border-radius: 15px;
-            margin: 15px 0;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 0.7rem;
-            border: 1px solid #FFD700;
-        }
-
-        .copy-btn {
-            background: #4CAF50;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 25px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .import-input {
-            width: 100%;
-            padding: 10px;
-            background: #0a0a0f;
-            border: 1px solid #FFD700;
-            border-radius: 15px;
-            color: white;
-            font-family: monospace;
-            font-size: 0.7rem;
-            margin: 10px 0;
-        }
-
         .info-text {
             font-size: 0.6rem;
             color: #FFA500;
@@ -439,6 +401,13 @@
             background: rgba(0,0,0,0.3);
             padding: 5px;
             border-radius: 20px;
+        }
+
+        .update-leaderboard {
+            font-size: 0.65rem;
+            color: #aaa;
+            text-align: center;
+            margin-top: 12px;
         }
 
         @keyframes float {
@@ -550,9 +519,7 @@
         </div>
 
         <div class="button-row">
-            <button class="leaderboard-btn" id="leaderboardBtn">🏆 ЛИДЕРЫ</button>
-            <button class="share-btn" id="shareBtn">📤 ПОДЕЛИТЬСЯ</button>
-            <button class="import-btn" id="importBtn">📥 ДОБАВИТЬ ДРУГА</button>
+            <button class="leaderboard-btn" id="leaderboardBtn">🏆 ТАБЛИЦА ЛИДЕРОВ 🏆</button>
         </div>
 
         <div class="upgrades" id="upgradesList"></div>
@@ -563,7 +530,8 @@
             <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
         <div class="info-text">
-            ⚡ Каждый нанятый сотрудник УВЕЛИЧИВАЕТ доход за клик! Нанять можно до 10 уровня.
+            ⚡ Каждый нанятый сотрудник УВЕЛИЧИВАЕТ доход за клик!<br>
+            🏆 Таблица лидеров показывает всех игроков на этом устройстве!
         </div>
     </div>
 </div>
@@ -579,38 +547,16 @@
     </div>
 </div>
 
-<div id="shareModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>📤 ПОДЕЛИТЬСЯ ПРОГРЕССОМ</h2>
-            <button class="close-modal" onclick="closeShareModal()">✕</button>
-        </div>
-        <div class="code-area" id="shareCode">Загрузка...</div>
-        <button class="copy-btn" onclick="copyShareCode()">📋 КОПИРОВАТЬ КОД</button>
-        <div class="info-text">Отправьте этот код другу! Он сможет добавить вас в таблицу лидеров.</div>
-    </div>
-</div>
-
-<div id="importModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>📥 ДОБАВИТЬ ДРУГА</h2>
-            <button class="close-modal" onclick="closeImportModal()">✕</button>
-        </div>
-        <textarea id="importCode" class="import-input" rows="3" placeholder="Вставьте код друга..."></textarea>
-        <button class="copy-btn" onclick="importFriend()">➕ ДОБАВИТЬ В ТАБЛИЦУ</button>
-        <div class="info-text">Вставьте код, который дал вам друг, чтобы увидеть его в таблице лидеров!</div>
-    </div>
-</div>
-
 <script>
     // ИГРОВЫЕ ДАННЫЕ
     let money = 0;
-    let clickPower = 1;  // Базовая сила клика
+    let clickPower = 1;
     let totalClicks = 0;
     let playerName = '';
     let playerId = '';
-    let globalLeaderboard = [];
+
+    // ТАБЛИЦА ЛИДЕРОВ (все игроки на устройстве)
+    let allPlayers = [];
 
     function generatePlayerId() {
         let id = localStorage.getItem('playerId');
@@ -624,8 +570,8 @@
     function getPlayerName() {
         let name = localStorage.getItem('playerName');
         if (!name) {
-            name = prompt('Введите ваше имя для таблицы лидеров:', 'Игрок_' + Math.floor(Math.random() * 1000));
-            if (!name) name = 'Аноним';
+            name = prompt('Введите ваше имя:', 'Игрок_' + Math.floor(Math.random() * 1000));
+            if (!name || name === '') name = 'Аноним';
             localStorage.setItem('playerName', name);
         }
         return name;
@@ -634,23 +580,29 @@
     playerId = generatePlayerId();
     playerName = getPlayerName();
 
-    function loadGlobalLeaderboard() {
-        const saved = localStorage.getItem('oarmm_global_leaderboard');
+    // ЗАГРУЗКА ВСЕХ ИГРОКОВ
+    function loadAllPlayers() {
+        const saved = localStorage.getItem('oarmm_all_players');
         if (saved) {
             try {
-                globalLeaderboard = JSON.parse(saved);
-            } catch(e) { globalLeaderboard = []; }
+                allPlayers = JSON.parse(saved);
+            } catch(e) { allPlayers = []; }
+        }
+        if (!allPlayers.length) {
+            allPlayers = [];
         }
     }
 
-    function saveGlobalLeaderboard() {
-        globalLeaderboard.sort((a, b) => b.money - a.money);
-        globalLeaderboard = globalLeaderboard.slice(0, 100);
-        localStorage.setItem('oarmm_global_leaderboard', JSON.stringify(globalLeaderboard));
+    // СОХРАНЕНИЕ ВСЕХ ИГРОКОВ
+    function saveAllPlayers() {
+        allPlayers.sort((a, b) => b.money - a.money);
+        allPlayers = allPlayers.slice(0, 50);
+        localStorage.setItem('oarmm_all_players', JSON.stringify(allPlayers));
     }
 
-    function updatePlayerInLeaderboard() {
-        const existingIndex = globalLeaderboard.findIndex(p => p.id === playerId);
+    // ДОБАВЛЕНИЕ/ОБНОВЛЕНИЕ ТЕКУЩЕГО ИГРОКА
+    function updateCurrentPlayer() {
+        const existingIndex = allPlayers.findIndex(p => p.id === playerId);
         const playerData = {
             id: playerId,
             name: playerName,
@@ -661,55 +613,53 @@
         };
         
         if (existingIndex !== -1) {
-            globalLeaderboard[existingIndex] = playerData;
+            allPlayers[existingIndex] = playerData;
         } else {
-            globalLeaderboard.push(playerData);
+            allPlayers.push(playerData);
         }
-        saveGlobalLeaderboard();
+        saveAllPlayers();
     }
 
-    function addFriendFromCode(code) {
-        try {
-            const friendData = JSON.parse(code);
-            if (friendData.id && friendData.name) {
-                const existingIndex = globalLeaderboard.findIndex(p => p.id === friendData.id);
-                if (existingIndex !== -1) {
-                    globalLeaderboard[existingIndex] = friendData;
-                } else {
-                    globalLeaderboard.push(friendData);
-                }
-                saveGlobalLeaderboard();
-                showNotification(`✅ ${friendData.name} добавлен в таблицу!`);
-                return true;
+    // ДОБАВЛЕНИЕ НОВОГО ИГРОКА (для демонстрации)
+    function addDemoPlayer() {
+        const demoPlayers = [
+            { name: 'Кирилл', money: 25000, clicks: 25000, clickPower: 15 },
+            { name: 'Дмитрий', money: 18000, clicks: 18000, clickPower: 12 },
+            { name: 'Алексей', money: 12000, clicks: 12000, clickPower: 8 },
+            { name: 'Сергей', money: 8000, clicks: 8000, clickPower: 5 },
+            { name: 'Владимир', money: 5000, clicks: 5000, clickPower: 3 }
+        ];
+        
+        for(let i = 0; i < demoPlayers.length; i++) {
+            const demoId = 'demo_' + i;
+            const existing = allPlayers.find(p => p.id === demoId);
+            if (!existing) {
+                allPlayers.push({
+                    id: demoId,
+                    name: demoPlayers[i].name,
+                    money: demoPlayers[i].money,
+                    clicks: demoPlayers[i].clicks,
+                    clickPower: demoPlayers[i].clickPower,
+                    timestamp: Date.now(),
+                    isDemo: true
+                });
             }
-        } catch(e) {}
-        showNotification('❌ Неверный код!', true);
-        return false;
-    }
-
-    function getShareCode() {
-        return JSON.stringify({
-            id: playerId,
-            name: playerName,
-            money: money,
-            clicks: totalClicks,
-            clickPower: clickPower,
-            timestamp: Date.now()
-        });
+        }
+        saveAllPlayers();
     }
 
     function getPlayerRank() {
-        const sorted = [...globalLeaderboard].sort((a, b) => b.money - a.money);
+        const sorted = [...allPlayers].sort((a, b) => b.money - a.money);
         const rank = sorted.findIndex(p => p.id === playerId) + 1;
         return rank > 0 ? rank : '-';
     }
 
     function displayLeaderboard() {
-        const sorted = [...globalLeaderboard].sort((a, b) => b.money - a.money);
+        const sorted = [...allPlayers].sort((a, b) => b.money - a.money);
         const container = document.getElementById('leaderboardList');
         
         if (sorted.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет игроков. Поделитесь кодом с друзьями!</div>';
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет игроков. Станьте первым!</div>';
             return;
         }
         
@@ -723,11 +673,15 @@
             if (rank === 2) item.classList.add('top2');
             if (rank === 3) item.classList.add('top3');
             
-            let medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `${rank}`;
+            let medal = '';
+            if (rank === 1) medal = '🥇';
+            else if (rank === 2) medal = '🥈';
+            else if (rank === 3) medal = '🥉';
+            else medal = `${rank}`;
             
             item.innerHTML = `
                 <div class="rank">${medal}</div>
-                <div class="player-name">${player.name} ${isCurrentPlayer ? '(вы)' : ''}</div>
+                <div class="player-name">${player.name} ${isCurrentPlayer ? '👑' : ''}</div>
                 <div class="player-money">💰 ${formatNumber(player.money)}</div>
             `;
             container.appendChild(item);
@@ -736,7 +690,7 @@
         document.getElementById('updateInfo').innerHTML = `👥 Всего игроков: ${sorted.length} | Обновлено: ${new Date().toLocaleTimeString()}`;
     }
 
-    // ВСЕ СОТРУДНИКИ УВЕЛИЧИВАЮТ ДОХОД ЗА КЛИК!
+    // СОТРУДНИКИ (увеличивают силу клика)
     const upgrades = [
         { id: 'emp1', name: 'Максим', desc: '+1 к силе клика', type: 'click', baseCost: 500, basePower: 1, maxLevel: 10, emoji: '🤝', count: 0 },
         { id: 'emp2', name: 'Родион', desc: '+3 к силе клика', type: 'click', baseCost: 2000, basePower: 3, maxLevel: 9, emoji: '⚡', count: 0 },
@@ -749,10 +703,8 @@
         { id: 'emp9', name: 'Мега-Директор', desc: '+1200 к силе клика', type: 'click', baseCost: 1500000, basePower: 1200, maxLevel: 5, emoji: '👑', count: 0 }
     ];
 
-    // Расчёт реальной силы с учётом уменьшения после 5 уровня
     function getActualPower(basePower, level) {
         if (level <= 5) return basePower;
-        // После 5 уровня эффективность снижается на 40%
         return Math.floor(basePower * 0.6);
     }
 
@@ -760,9 +712,8 @@
         return getActualPower(upgrade.basePower, upgrade.count);
     }
 
-    // Пересчёт общей силы клика
     function recalcClickPower() {
-        let total = 1; // Базовая сила клика
+        let total = 1;
         for(let up of upgrades) {
             if(up.type === 'click') {
                 total += getCurrentPower(up) * up.count;
@@ -772,7 +723,6 @@
         return clickPower;
     }
 
-    // Расчёт стоимости следующего уровня
     function getCost(upgrade) {
         let multiplier = upgrade.count >= 5 ? 0.8 : 1;
         return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.25 * multiplier));
@@ -798,11 +748,10 @@
         const saveData = {
             money: money,
             totalClicks: totalClicks,
-            clickPower: clickPower,
             upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
         };
         localStorage.setItem('makeMore_save', JSON.stringify(saveData));
-        updatePlayerInLeaderboard();
+        updateCurrentPlayer();
         showNotification('💾 Игра сохранена!');
     }
 
@@ -821,13 +770,10 @@
             }
             recalcClickPower();
             updateUI();
-            updatePlayerInLeaderboard();
+            updateCurrentPlayer();
             showNotification(`📂 Загружено! Капитал: ${formatNumber(money)}`);
             return true;
-        } catch(e) { 
-            showNotification('❌ Ошибка загрузки!', true);
-            return false; 
-        }
+        } catch(e) { return false; }
     }
 
     function updateUI() {
@@ -836,7 +782,6 @@
         document.getElementById('clickPowerStat').innerText = clickPower;
         document.getElementById('totalClicks').innerText = totalClicks;
         
-        // Расчёт прогресса
         let totalLevels = 0;
         let maxPossibleLevels = 0;
         
@@ -851,7 +796,6 @@
         const rank = getPlayerRank();
         document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
         
-        // Бонусный текст
         const bonusText = document.getElementById('bonusText');
         if (clickPower > 1) {
             bonusText.innerHTML = `⚡ Сотрудники дают +${clickPower - 1} к силе клика! Всего: ${clickPower} монет за клик! ⚡`;
@@ -861,7 +805,6 @@
             bonusText.style.color = '#FFA500';
         }
         
-        // Обновление списка сотрудников
         const container = document.getElementById('upgradesList');
         container.innerHTML = '';
         
@@ -879,7 +822,6 @@
             let bonusInfo = '';
             if (isMaxed) {
                 powerDisplay = `MAX ${currentPowerValue}`;
-                bonusInfo = ' 👑';
             } else if (isDiminishing) {
                 powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
                 bonusInfo = ' ⚠️ -40%';
@@ -931,7 +873,6 @@
         }
     }
 
-    // КЛИК - ДОБАВЛЯЕТ clickPower МОНЕТ
     function handleClick() {
         money += clickPower;
         totalClicks++;
@@ -960,39 +901,43 @@
             for(let up of upgrades) up.count = 0;
             recalcClickPower();
             updateUI();
-            updatePlayerInLeaderboard();
+            updateCurrentPlayer();
             saveGame();
             showNotification('🔄 Игра перезапущена! Сила клика: 1');
         }
     }
 
-    function showLeaderboard() { updatePlayerInLeaderboard(); displayLeaderboard(); document.getElementById('leaderboardModal').classList.add('active'); }
+    function showLeaderboard() { 
+        updateCurrentPlayer();
+        displayLeaderboard(); 
+        document.getElementById('leaderboardModal').classList.add('active'); 
+    }
     function closeLeaderboard() { document.getElementById('leaderboardModal').classList.remove('active'); }
-    function showShareModal() { document.getElementById('shareCode').innerText = getShareCode(); document.getElementById('shareModal').classList.add('active'); }
-    function closeShareModal() { document.getElementById('shareModal').classList.remove('active'); }
-    function copyShareCode() { navigator.clipboard.writeText(document.getElementById('shareCode').innerText); showNotification('📋 Код скопирован! Отправьте другу.'); }
-    function showImportModal() { document.getElementById('importModal').classList.add('active'); }
-    function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
-    function importFriend() { const code = document.getElementById('importCode').value; if(code.trim()) { addFriendFromCode(code); document.getElementById('importCode').value = ''; closeImportModal(); } else { showNotification('❌ Введите код друга!', true); } }
+
+    // АВТОСОХРАНЕНИЕ КАЖДУЮ МИНУТУ
+    setInterval(() => {
+        if (money > 0 || totalClicks > 0) {
+            updateCurrentPlayer();
+        }
+    }, 60000);
 
     function init() {
-        loadGlobalLeaderboard();
+        loadAllPlayers();
+        addDemoPlayer();
         loadGame();
         recalcClickPower();
         updateUI();
-        updatePlayerInLeaderboard();
+        updateCurrentPlayer();
         
         document.getElementById('clickBtn').addEventListener('click', handleClick);
         document.getElementById('saveBtn').addEventListener('click', saveGame);
         document.getElementById('loadBtn').addEventListener('click', loadGame);
         document.getElementById('resetBtn').addEventListener('click', resetGame);
         document.getElementById('leaderboardBtn').addEventListener('click', showLeaderboard);
-        document.getElementById('shareBtn').addEventListener('click', showShareModal);
-        document.getElementById('importBtn').addEventListener('click', showImportModal);
         
-        window.addEventListener('beforeunload', () => { updatePlayerInLeaderboard(); saveGame(); });
+        window.addEventListener('beforeunload', () => { updateCurrentPlayer(); saveGame(); });
         
-        setTimeout(() => showNotification('⚡ Каждый сотрудник УВЕЛИЧИВАЕТ доход за клик!'), 500);
+        setTimeout(() => showNotification('🏆 Таблица лидеров показывает всех игроков!'), 500);
     }
 
     init();
