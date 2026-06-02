@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Make More - O.A.R.M.M [СОХРАНЕНИЕ]</title>
+    <title>Make More - O.A.R.M.M [ТАБЛИЦА ЛИДЕРОВ]</title>
     <style>
         * {
             user-select: none;
@@ -24,15 +24,6 @@
             overflow-x: hidden;
         }
 
-        body::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 20% 50%, rgba(255,215,0,0.05) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
         .game-container {
             background: rgba(10, 10, 20, 0.5);
             border-radius: 40px;
@@ -40,7 +31,7 @@
             backdrop-filter: blur(8px);
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
             width: 100%;
-            max-width: 550px;
+            max-width: 650px;
         }
 
         .game {
@@ -176,7 +167,7 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             margin: 15px 0;
         }
@@ -189,15 +180,38 @@
         }
 
         .stat-label {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #aaa;
             margin-bottom: 3px;
         }
 
         .stat-value {
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #FFD700;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .leaderboard-btn {
+            background: linear-gradient(135deg, #FF8C00, #FF5722);
+            padding: 10px;
+            border: none;
+            border-radius: 35px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            flex: 1;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .leaderboard-btn:active {
+            transform: scale(0.98);
         }
 
         .upgrades {
@@ -235,10 +249,27 @@
             border: 1px solid rgba(255,215,0,0.15);
             gap: 8px;
             flex-wrap: wrap;
+            position: relative;
         }
 
-        .upgrade:active {
-            transform: scale(0.99);
+        .upgrade.max-level {
+            border: 2px solid #FFD700;
+            background: linear-gradient(135deg, #2a2a38, #1a1a2a);
+            opacity: 0.95;
+        }
+
+        .upgrade.max-level::after {
+            content: '👑 MAX';
+            position: absolute;
+            top: -8px;
+            right: 10px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            font-size: 0.6rem;
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 20px;
+            z-index: 1;
         }
 
         .upgrade-info {
@@ -261,6 +292,10 @@
         .upgrade-stats {
             font-size: 0.7rem;
             color: #FFA500;
+        }
+
+        .upgrade-stats.diminishing {
+            color: #FF6666;
         }
 
         .upgrade-cost {
@@ -295,6 +330,13 @@
             background: linear-gradient(135deg, #555, #444);
             opacity: 0.5;
             cursor: not-allowed;
+        }
+
+        .buy-btn.maxed {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            cursor: default;
+            opacity: 0.8;
         }
 
         .save-controls {
@@ -333,20 +375,139 @@
             transition: all 0.2s ease;
         }
 
-        .save-indicator {
+        /* Модальное окно лидеров */
+        .modal {
+            display: none;
             position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0,0,0,0.8);
-            color: #4CAF50;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: bold;
-            z-index: 100;
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
             backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+            border-radius: 30px;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80%;
+            overflow-y: auto;
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 30px rgba(255,215,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FFD700;
+        }
+
+        .modal-header h2 {
+            color: #FFD700;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .close-modal {
+            background: #FF4444;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .leaderboard-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .leaderboard-item {
+            background: linear-gradient(135deg, #1a1a28, #12121e);
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .leaderboard-item.top1 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+        }
+
+        .leaderboard-item.top1 .rank, 
+        .leaderboard-item.top1 .player-name,
+        .leaderboard-item.top1 .player-money {
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .leaderboard-item.top2 {
+            background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
+        }
+
+        .leaderboard-item.top3 {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+        }
+
+        .rank {
+            font-size: 1.3rem;
+            font-weight: bold;
+            width: 50px;
+        }
+
+        .player-name {
+            flex: 2;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .player-money {
+            font-weight: bold;
+            font-family: monospace;
+            color: #FFD700;
+        }
+
+        .current-player {
+            background: linear-gradient(135deg, #2a5f8a, #1a3a5c);
+            border: 2px solid #FFD700;
+        }
+
+        .update-leaderboard {
+            font-size: 0.7rem;
+            color: #aaa;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .info-text {
+            font-size: 0.65rem;
+            color: #FFA500;
+            margin-top: 10px;
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 5px;
+            border-radius: 20px;
         }
 
         @keyframes float {
@@ -389,7 +550,7 @@
             border-radius: 30px;
             font-weight: bold;
             font-size: 0.8rem;
-            animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2s forwards;
+            animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2.5s forwards;
             z-index: 1000;
             box-shadow: 0 3px 10px rgba(0,0,0,0.3);
         }
@@ -412,14 +573,7 @@
             }
         }
 
-        .warning {
-            color: #FF6666;
-            font-size: 0.65rem;
-            margin-top: 8px;
-            text-align: center;
-        }
-
-        @media (max-width: 480px) {
+        @media (max-width: 550px) {
             .game {
                 padding: 15px;
             }
@@ -449,15 +603,24 @@
                 font-size: 0.7rem;
                 min-width: 60px;
             }
+            
+            .stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 5px;
+            }
+            
+            .stat-value {
+                font-size: 0.75rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="game">
-        <div class="hard-mode-badge">⚠️ ХАРДКОР РЕЖИМ ⚠️</div>
+        <div class="hard-mode-badge">⚠️ ТАБЛИЦА ЛИДЕРОВ ⚠️</div>
         <h1>💰 O.A.R.M.M 💰</h1>
-        <div class="sub">с автосохранением</div>
+        <div class="sub">соревнуйся с другими игроками!</div>
 
         <div class="balance">
             <div class="balance-label">💰 КАПИТАЛ 💰</div>
@@ -481,9 +644,17 @@
                 <div class="stat-value" id="autoIncome">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">НАЙМАНО</div>
-                <div class="stat-value" id="totalUpgrades">0</div>
+                <div class="stat-label">ПРОГРЕСС</div>
+                <div class="stat-value" id="progressPercent">0%</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">МЕСТО</div>
+                <div class="stat-value" id="playerRank">-</div>
+            </div>
+        </div>
+
+        <div class="button-row">
+            <button class="leaderboard-btn" id="leaderboardBtn">🏆 ТАБЛИЦА ЛИДЕРОВ 🏆</button>
         </div>
 
         <div class="upgrades" id="upgradesList"></div>
@@ -493,33 +664,105 @@
             <button class="save-btn" id="loadBtn">📂 ЗАГРУЗИТЬ</button>
             <button class="reset-btn" id="resetBtn">🔄 СБРОС</button>
         </div>
-        <div class="warning">💀 Цены: 1к → 5к → 15к → 25к → 50к 💀</div>
+        <div class="info-text">
+            👥 Ваши данные сохраняются в таблицу лидеров! Соревнуйтесь с другими!
+        </div>
     </div>
 </div>
 
-<div id="saveIndicator" class="save-indicator" style="display: none;">💾 Сохранено!</div>
+<!-- Модальное окно таблицы лидеров -->
+<div id="leaderboardModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🏆 ТАБЛИЦА ЛИДЕРОВ 🏆</h2>
+            <button class="close-modal" onclick="closeLeaderboard()">✕</button>
+        </div>
+        <div id="leaderboardList" class="leaderboard-list">
+            <!-- Список лидеров будет загружаться сюда -->
+        </div>
+        <div class="update-leaderboard" id="updateInfo">
+            Обновлено: --
+        </div>
+    </div>
+</div>
 
 <script>
     // ИГРОВЫЕ ДАННЫЕ
     let money = 0;
     let clickPower = 1;
     let totalClicks = 0;
+    let playerName = '';
+    let playerId = '';
 
-    // Улучшения
+    // Генерация уникального ID игрока
+    function generatePlayerId() {
+        let id = localStorage.getItem('playerId');
+        if (!id) {
+            id = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('playerId', id);
+        }
+        return id;
+    }
+
+    // Получение имени игрока
+    function getPlayerName() {
+        let name = localStorage.getItem('playerName');
+        if (!name) {
+            name = prompt('Введите ваше имя для таблицы лидеров:', 'Игрок_' + Math.floor(Math.random() * 1000));
+            if (!name) name = 'Аноним';
+            localStorage.setItem('playerName', name);
+        }
+        return name;
+    }
+
+    playerId = generatePlayerId();
+    playerName = getPlayerName();
+
+    const DIMINISH_START = 5;
+
+    // Работники
     const upgrades = [
-        { id: 'click1', name: 'Максим', desc: '+5 к клику', baseCost: 1000, power: 5, type: 'click', count: 0, emoji: '🤝' },
-        { id: 'click2', name: 'Родион', desc: '+15 к клику', baseCost: 5000, power: 15, type: 'click', count: 0, emoji: '⚡' },
-        { id: 'click3', name: 'Миша', desc: '+40 к клику', baseCost: 15000, power: 40, type: 'click', count: 0, emoji: '🚀' },
-        { id: 'click4', name: 'Супер-Миша', desc: '+100 к клику', baseCost: 25000, power: 100, type: 'click', count: 0, emoji: '💎' },
-        { id: 'auto1', name: 'Адиль', desc: '+25/сек', baseCost: 8000, power: 25, type: 'auto', count: 0, emoji: '📀' },
-        { id: 'auto2', name: 'Ораз', desc: '+100/сек', baseCost: 50000, power: 100, type: 'auto', count: 0, emoji: '🏭' }
+        { id: 'click1', name: 'Максим', desc: '+5 к клику', type: 'click', baseCost: 1000, basePower: 5, maxLevel: 10, emoji: '🤝', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'click2', name: 'Родион', desc: '+15 к клику', type: 'click', baseCost: 5000, basePower: 15, maxLevel: 9, emoji: '⚡', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'click3', name: 'Миша', desc: '+40 к клику', type: 'click', baseCost: 15000, basePower: 40, maxLevel: 8, emoji: '🚀', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'click4', name: 'Супер-Миша', desc: '+100 к клику', type: 'click', baseCost: 25000, basePower: 100, maxLevel: 7, emoji: '💎', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'auto1', name: 'Адиль', desc: '+25/сек', type: 'auto', baseCost: 8000, basePower: 25, maxLevel: 9, emoji: '📀', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'auto2', name: 'Супер-Адиль', desc: '+60/сек', type: 'auto', baseCost: 20000, basePower: 60, maxLevel: 8, emoji: '💿', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'auto3', name: 'Ораз', desc: '+100/сек', type: 'auto', baseCost: 50000, basePower: 100, maxLevel: 8, emoji: '🏭', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'auto4', name: 'Супер-Ораз', desc: '+200/сек', type: 'auto', baseCost: 100000, basePower: 200, maxLevel: 7, emoji: '🏭💎', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'auto5', name: 'Мега-Директор', desc: '+500/сек', type: 'auto', baseCost: 250000, basePower: 500, maxLevel: 6, emoji: '👑', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } },
+        { id: 'click5', name: 'Легендарный Макс', desc: '+300 к клику', type: 'click', baseCost: 150000, basePower: 300, maxLevel: 6, emoji: '⭐', count: 0,
+          currentPower: function() { return getActualPower(this.basePower, this.count, this.maxLevel); } }
     ];
 
-    // Несколько слотов сохранения
-    let currentSlot = 1;
+    function getActualPower(basePower, level, maxLevel) {
+        if (level <= DIMINISH_START) return basePower;
+        return Math.floor(basePower * 0.5);
+    }
+
+    function recalcClickPower() {
+        let total = 1;
+        for(let up of upgrades) {
+            if(up.type === 'click') {
+                total += up.currentPower();
+            }
+        }
+        clickPower = total;
+        return clickPower;
+    }
 
     function getCost(upgrade) {
-        return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.5));
+        let multiplier = upgrade.count >= DIMINISH_START ? 0.7 : 1;
+        return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.4 * multiplier));
     }
 
     function formatNumber(num) {
@@ -528,150 +771,96 @@
         return Math.floor(num).toString();
     }
 
-    function showSaveIndicator() {
-        const indicator = document.getElementById('saveIndicator');
-        indicator.style.display = 'block';
-        setTimeout(() => {
-            indicator.style.display = 'none';
-        }, 1500);
-    }
-
-    // СОХРАНЕНИЕ в localStorage
-    function saveGame(slot = 1) {
-        const saveData = {
-            version: '1.0',
-            timestamp: Date.now(),
-            money: money,
-            clickPower: clickPower,
-            totalClicks: totalClicks,
-            upgrades: upgrades.map(up => ({ 
-                id: up.id,
-                count: up.count 
-            }))
-        };
-        
-        localStorage.setItem(`makeMore_slot_${slot}`, JSON.stringify(saveData));
-        
-        // Показать индикатор сохранения
-        showSaveIndicator();
-        showNotification(`💾 Игра сохранена в слот ${slot}!`, false);
-        
-        // Сохраняем какой слот был последним
-        localStorage.setItem('makeMore_lastSlot', slot);
-        
-        return true;
-    }
-
-    // ЗАГРУЗКА из localStorage
-    function loadGame(slot = null) {
-        let loadSlot = slot;
-        if (loadSlot === null) {
-            loadSlot = localStorage.getItem('makeMore_lastSlot') || 1;
-        }
-        
-        const saved = localStorage.getItem(`makeMore_slot_${loadSlot}`);
-        if (!saved) {
-            showNotification(`❌ Слот ${loadSlot} пуст! Сначала сохраните игру.`, true);
-            return false;
-        }
-        
+    // РАБОТА С ТАБЛИЦЕЙ ЛИДЕРОВ (localStorage)
+    function getLeaderboard() {
+        const leaderboard = localStorage.getItem('oarmm_leaderboard');
+        if (!leaderboard) return [];
         try {
-            const data = JSON.parse(saved);
-            money = data.money;
-            clickPower = data.clickPower;
-            totalClicks = data.totalClicks || 0;
-            
-            if(data.upgrades && data.upgrades.length === upgrades.length) {
-                for(let i = 0; i < upgrades.length; i++) {
-                    upgrades[i].count = data.upgrades[i].count;
-                }
-            }
-            
-            // Пересчёт силы клика
-            let newClickPower = 1;
-            for(let up of upgrades) {
-                if(up.type === 'click') {
-                    newClickPower += up.count * up.power;
-                }
-            }
-            clickPower = newClickPower;
-            
-            updateUI();
-            currentSlot = loadSlot;
-            
-            const date = new Date(data.timestamp);
-            showNotification(`📂 Загружен слот ${loadSlot} от ${date.toLocaleTimeString()}`, false);
-            return true;
+            return JSON.parse(leaderboard);
         } catch(e) {
-            showNotification('❌ Ошибка загрузки сохранения!', true);
-            return false;
+            return [];
         }
     }
 
-    // Автосохранение
-    let autoSaveInterval = null;
-    
-    function startAutoSave() {
-        if(autoSaveInterval) clearInterval(autoSaveInterval);
-        autoSaveInterval = setInterval(() => {
-            saveGame(currentSlot);
-        }, 30000); // Автосохранение каждые 30 секунд
+    function saveLeaderboard(leaderboard) {
+        leaderboard.sort((a, b) => b.money - a.money);
+        leaderboard = leaderboard.slice(0, 50); // Храним топ 50
+        localStorage.setItem('oarmm_leaderboard', JSON.stringify(leaderboard));
     }
 
-    // Экспорт сохранения в файл
-    function exportSave() {
-        const saveData = {
+    function updateLeaderboard() {
+        const leaderboard = getLeaderboard();
+        const existingIndex = leaderboard.findIndex(p => p.id === playerId);
+        
+        const playerData = {
+            id: playerId,
+            name: playerName,
             money: money,
-            clickPower: clickPower,
-            totalClicks: totalClicks,
-            upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
+            clicks: totalClicks,
+            timestamp: Date.now()
         };
         
-        const dataStr = JSON.stringify(saveData, null, 2);
-        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+        if (existingIndex !== -1) {
+            leaderboard[existingIndex] = playerData;
+        } else {
+            leaderboard.push(playerData);
+        }
         
-        const exportFileDefaultName = `oarmm_save_${new Date().toISOString().slice(0,19)}.json`;
-        
-        const linkElement = document.createElement('a');
-        linkElement.setAttribute('href', dataUri);
-        linkElement.setAttribute('download', exportFileDefaultName);
-        linkElement.click();
-        
-        showNotification('📁 Сохранение экспортировано в файл!', false);
+        saveLeaderboard(leaderboard);
     }
 
-    // Импорт сохранения из файла
-    function importSave(file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                money = data.money;
-                clickPower = data.clickPower;
-                totalClicks = data.totalClicks || 0;
-                
-                if(data.upgrades && data.upgrades.length === upgrades.length) {
-                    for(let i = 0; i < upgrades.length; i++) {
-                        upgrades[i].count = data.upgrades[i].count;
-                    }
-                }
-                
-                let newClickPower = 1;
-                for(let up of upgrades) {
-                    if(up.type === 'click') {
-                        newClickPower += up.count * up.power;
-                    }
-                }
-                clickPower = newClickPower;
-                
-                updateUI();
-                saveGame(currentSlot);
-                showNotification('📁 Импорт выполнен успешно!', false);
-            } catch(e) {
-                showNotification('❌ Ошибка импорта файла!', true);
-            }
-        };
-        reader.readAsText(file);
+    function getPlayerRank() {
+        const leaderboard = getLeaderboard();
+        const sorted = [...leaderboard].sort((a, b) => b.money - a.money);
+        const rank = sorted.findIndex(p => p.id === playerId) + 1;
+        return rank > 0 ? rank : '-';
+    }
+
+    function displayLeaderboard() {
+        const leaderboard = getLeaderboard();
+        const sorted = [...leaderboard].sort((a, b) => b.money - a.money);
+        const container = document.getElementById('leaderboardList');
+        
+        if (sorted.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px;">Пока нет игроков. Будьте первым!</div>';
+            return;
+        }
+        
+        container.innerHTML = '';
+        sorted.forEach((player, index) => {
+            const rank = index + 1;
+            const isCurrentPlayer = player.id === playerId;
+            const item = document.createElement('div');
+            item.className = `leaderboard-item ${isCurrentPlayer ? 'current-player' : ''}`;
+            if (rank === 1) item.classList.add('top1');
+            if (rank === 2) item.classList.add('top2');
+            if (rank === 3) item.classList.add('top3');
+            
+            let medal = '';
+            if (rank === 1) medal = '🥇';
+            else if (rank === 2) medal = '🥈';
+            else if (rank === 3) medal = '🥉';
+            else medal = `${rank}`;
+            
+            item.innerHTML = `
+                <div class="rank">${medal}</div>
+                <div class="player-name">${player.name} ${isCurrentPlayer ? '(вы)' : ''}</div>
+                <div class="player-money">💰 ${formatNumber(player.money)}</div>
+            `;
+            container.appendChild(item);
+        });
+        
+        document.getElementById('updateInfo').innerHTML = `Обновлено: ${new Date().toLocaleTimeString()} | Всего игроков: ${sorted.length}`;
+    }
+
+    function showLeaderboard() {
+        updateLeaderboard();
+        displayLeaderboard();
+        document.getElementById('leaderboardModal').classList.add('active');
+    }
+
+    function closeLeaderboard() {
+        document.getElementById('leaderboardModal').classList.remove('active');
     }
 
     function showNotification(text, isError = false) {
@@ -681,7 +870,49 @@
         notification.style.color = isError ? 'white' : '#1a1a2e';
         notification.innerText = text;
         document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 2300);
+        setTimeout(() => notification.remove(), 2500);
+    }
+
+    function saveGame() {
+        const saveData = {
+            version: '4.0',
+            timestamp: Date.now(),
+            money: money,
+            clickPower: clickPower,
+            totalClicks: totalClicks,
+            upgrades: upgrades.map(up => ({ id: up.id, count: up.count }))
+        };
+        localStorage.setItem('makeMore_leaderboard_save', JSON.stringify(saveData));
+        updateLeaderboard();
+        showNotification('💾 Игра сохранена!', false);
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('makeMore_leaderboard_save');
+        if (!saved) {
+            showNotification('❌ Нет сохранений!', true);
+            return false;
+        }
+        try {
+            const data = JSON.parse(saved);
+            money = data.money;
+            totalClicks = data.totalClicks || 0;
+            
+            if(data.upgrades && data.upgrades.length === upgrades.length) {
+                for(let i = 0; i < upgrades.length; i++) {
+                    upgrades[i].count = data.upgrades[i].count;
+                }
+            }
+            
+            recalcClickPower();
+            updateUI();
+            updateLeaderboard();
+            showNotification(`📂 Загружено! Капитал: ${formatNumber(money)}`, false);
+            return true;
+        } catch(e) {
+            showNotification('❌ Ошибка загрузки!', true);
+            return false;
+        }
     }
 
     function updateUI() {
@@ -690,36 +921,69 @@
         document.getElementById('totalClicks').innerText = totalClicks;
         
         let autoIncome = 0;
-        let totalUpgradeCount = 0;
+        let totalLevels = 0;
+        let maxPossibleLevels = 0;
+        let hiredCount = 0;
+        
         for(let up of upgrades) {
             if(up.type === 'auto') {
-                autoIncome += up.count * up.power;
+                autoIncome += up.currentPower() * up.count;
             }
-            totalUpgradeCount += up.count;
+            totalLevels += up.count;
+            maxPossibleLevels += up.maxLevel;
+            if(up.count > 0) hiredCount++;
         }
+        
+        const progressPercent = maxPossibleLevels > 0 ? Math.floor((totalLevels / maxPossibleLevels) * 100) : 0;
         document.getElementById('autoIncome').innerText = autoIncome;
-        document.getElementById('totalUpgrades').innerText = totalUpgradeCount;
-
+        document.getElementById('progressPercent').innerText = progressPercent + '%';
+        document.getElementById('totalHired') && (document.getElementById('totalHired').innerText = `${hiredCount}/${upgrades.length}`);
+        
+        const rank = getPlayerRank();
+        document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
+        
         const container = document.getElementById('upgradesList');
         container.innerHTML = '';
+        
         for(let up of upgrades) {
             const cost = getCost(up);
-            const canBuy = money >= cost;
+            const isMaxed = up.count >= up.maxLevel;
+            const canBuy = money >= cost && !isMaxed;
+            const currentPowerValue = up.currentPower();
+            const isDiminishing = up.count >= DIMINISH_START && up.count < up.maxLevel;
+            
             const div = document.createElement('div');
-            div.className = 'upgrade';
+            div.className = `upgrade ${isMaxed ? 'max-level' : ''}`;
+            
+            let powerDisplay = `${currentPowerValue}`;
+            let powerClass = '';
+            
+            if (isMaxed) {
+                powerDisplay = `MAX ${currentPowerValue}`;
+            } else if (isDiminishing) {
+                powerDisplay = `${currentPowerValue} (было ${up.basePower})`;
+                powerClass = 'diminishing';
+            }
+            
             div.innerHTML = `
                 <div class="upgrade-info">
                     <div class="upgrade-name">${up.emoji} ${up.name}</div>
-                    <div class="upgrade-desc">${up.desc}</div>
-                    <div class="upgrade-stats">ур.${up.count} | +${up.power}</div>
+                    <div class="upgrade-desc">+${up.desc}</div>
+                    <div class="upgrade-stats ${powerClass}">
+                        📊 ур.${up.count}/${up.maxLevel} | +${powerDisplay}
+                    </div>
                 </div>
-                <div class="upgrade-cost">💰 ${formatNumber(cost)}</div>
-                <button class="buy-btn ${canBuy ? '' : 'disabled'}" data-id="${up.id}">Нанять</button>
+                <div class="upgrade-cost">💰 ${isMaxed ? 'MAX' : formatNumber(cost)}</div>
+                <button class="buy-btn ${isMaxed ? 'maxed' : (canBuy ? '' : 'disabled')}" 
+                        data-id="${up.id}" ${isMaxed ? 'disabled' : ''}>
+                    ${isMaxed ? '👑 MAX' : 'Нанять'}
+                </button>
             `;
             container.appendChild(div);
         }
 
         document.querySelectorAll('.buy-btn').forEach(btn => {
+            if (btn.disabled) return;
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const id = btn.getAttribute('data-id');
@@ -730,21 +994,33 @@
     }
 
     function buyUpgrade(upgrade) {
+        if (upgrade.count >= upgrade.maxLevel) {
+            showNotification(`👑 ${upgrade.name} уже на максимальном уровне!`, true);
+            return;
+        }
+        
         const cost = getCost(upgrade);
         if(money >= cost) {
             money -= cost;
             upgrade.count++;
             
-            if(upgrade.type === 'click') {
-                clickPower += upgrade.power;
-                showNotification(`✅ ${upgrade.name} нанят! +${upgrade.power} к клику`);
+            const newPower = upgrade.currentPower();
+            const isDiminishing = upgrade.count >= DIMINISH_START;
+            const isMax = upgrade.count === upgrade.maxLevel;
+            
+            if (isMax) {
+                showNotification(`👑 ПОЗДРАВЛЯЮ! ${upgrade.name} достиг МАКСИМАЛЬНОГО уровня!`, false);
+            } else if (isDiminishing && upgrade.count === DIMINISH_START) {
+                showNotification(`⚠️ ${upgrade.name} достиг ${DIMINISH_START} уровня! Эффективность снижена!`, false);
             } else {
-                showNotification(`✅ ${upgrade.name} улучшен! +${upgrade.power}/сек`);
+                showNotification(`✅ ${upgrade.name} улучшен до ${upgrade.count} уровня!`, false);
             }
             
+            if(upgrade.type === 'click') recalcClickPower();
+            
             updateUI();
-            saveGame(currentSlot);
-            showFloatingText(`+${upgrade.power}`, document.getElementById('clickBtn'));
+            saveGame();
+            showFloatingText(`Ур.${upgrade.count}`, document.getElementById('clickBtn'));
         } else {
             const btn = document.querySelector(`.buy-btn[data-id="${upgrade.id}"]`);
             if(btn) {
@@ -776,13 +1052,15 @@
         setTimeout(() => div.remove(), 700);
     }
 
+    let autoIncomeInterval = null;
+    
     function startAutoIncome() {
-        if(autoSaveInterval) clearInterval(autoSaveInterval);
-        autoSaveInterval = setInterval(() => {
+        if(autoIncomeInterval) clearInterval(autoIncomeInterval);
+        autoIncomeInterval = setInterval(() => {
             let autoMoney = 0;
             for(let up of upgrades) {
                 if(up.type === 'auto') {
-                    autoMoney += up.count * up.power;
+                    autoMoney += up.currentPower() * up.count;
                 }
             }
             if(autoMoney > 0) {
@@ -793,66 +1071,48 @@
     }
 
     function resetGame() {
-        if(confirm('💀 Начать игру заново? Весь прогресс будет сброшен! 💀')) {
+        if(confirm('💀 НАЧАТЬ ВСЁ ЗАНОВО? Ваше место в таблице лидеров обновится! 💀')) {
             money = 0;
-            clickPower = 1;
             totalClicks = 0;
             for(let up of upgrades) {
                 up.count = 0;
             }
+            recalcClickPower();
             updateUI();
-            saveGame(currentSlot);
-            showNotification('🔄 Игра перезапущена! Прогресс сохранён.');
+            updateLeaderboard();
+            saveGame();
+            showNotification('🔄 Игра перезапущена!');
         }
     }
 
-    function showSlotSelector() {
-        const slot = prompt('Выберите слот сохранения (1-5):', currentSlot);
-        const slotNum = parseInt(slot);
-        if(slotNum >= 1 && slotNum <= 5) {
-            currentSlot = slotNum;
-            loadGame(currentSlot);
-            showNotification(`Выбран слот ${currentSlot}`);
-        } else if(slot !== null) {
-            showNotification('❌ Неверный номер слота! Используйте 1-5', true);
+    // Автообновление таблицы лидеров каждые 30 секунд
+    setInterval(() => {
+        if (money > 0) {
+            updateLeaderboard();
+            const rank = getPlayerRank();
+            document.getElementById('playerRank').innerText = rank === '-' ? '-' : rank + ' место';
         }
-    }
+    }, 30000);
 
-    // Инициализация
-    let autoIncomeInterval = null;
-    
     function init() {
-        // Пытаемся загрузить последнее сохранение
-        const lastSlot = localStorage.getItem('makeMore_lastSlot');
-        if(lastSlot) {
-            currentSlot = parseInt(lastSlot);
-            loadGame(currentSlot);
-        } else {
-            updateUI();
-        }
-        
+        loadGame();
+        recalcClickPower();
+        updateUI();
         startAutoIncome();
-        startAutoSave();
         
         document.getElementById('clickBtn').addEventListener('click', handleClick);
-        document.getElementById('saveBtn').addEventListener('click', () => saveGame(currentSlot));
-        document.getElementById('loadBtn').addEventListener('click', () => {
-            if(confirm('Загрузить последнее сохранение? Несохранённый прогресс будет потерян!')) {
-                loadGame(currentSlot);
-            }
-        });
+        document.getElementById('saveBtn').addEventListener('click', saveGame);
+        document.getElementById('loadBtn').addEventListener('click', loadGame);
         document.getElementById('resetBtn').addEventListener('click', resetGame);
-        
-        // Доп. кнопки для слотов (двойной клик по балансу)
-        const balanceEl = document.querySelector('.balance');
-        balanceEl.addEventListener('dblclick', showSlotSelector);
+        document.getElementById('leaderboardBtn').addEventListener('click', showLeaderboard);
         
         window.addEventListener('beforeunload', () => {
-            saveGame(currentSlot);
+            updateLeaderboard();
+            saveGame();
         });
         
         setTimeout(() => {
-            showNotification('💾 Игра автосохраняется каждые 30 сек! Двойной клик по балансу - выбор слота');
+            showNotification('🏆 Соревнуйтесь с другими игроками в таблице лидеров!');
         }, 500);
     }
 
