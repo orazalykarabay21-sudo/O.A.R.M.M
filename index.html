@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Make More - O.A.R.M.M [ХАРДКОР]</title>
+    <style>
+        * {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0a0a0f, #1a1a2e, #0f0f1a);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 15px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255,215,0,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .game-container {
+            background: rgba(10, 10, 20, 0.5);
+            border-radius: 40px;
+            padding: 15px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 550px;
+        }
+
+        .game {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(20,20,35,0.96), rgba(15,15,25,0.98));
+            border-radius: 35px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            text-align: center;
+            border: 1px solid rgba(255,215,0,0.15);
+        }
+
+        .hard-mode-badge {
+            background: linear-gradient(135deg, #FF0000, #8B0000);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #FFD700, #FFA500, #FF6347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .sub {
+            color: #888;
+            margin-bottom: 15px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+        }
+
+        .balance {
+            background: linear-gradient(135deg, #1a1a2a, #0f0f1a);
+            border-radius: 60px;
+            padding: 12px 20px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 5px 15px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,215,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .balance-label {
+            font-size: 0.8rem;
+            color: #FFD700;
+            letter-spacing: 2px;
+            font-weight: bold;
+            position: relative;
+            z-index: 1;
+        }
+
+        .balance-amount {
+            font-size: 2.8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            z-index: 1;
+            font-family: 'Monaco', monospace;
+        }
+
+        .click-area {
+            margin: 15px 0;
+        }
+
+        .main-button {
+            width: 160px;
+            height: 160px;
+            background: radial-gradient(circle at 30% 30%, #FFD700, #FF8C00);
+            border: none;
+            border-radius: 50%;
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 12px 0 #B8860B, 0 8px 25px rgba(0,0,0,0.4);
+            transition: 0.05s linear;
+            margin: 10px auto;
+            display: block;
+            font-family: monospace;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 6px 0 #B8860B;
+        }
+
+        .per-click {
+            background: linear-gradient(135deg, #2a2a35, #1e1e28);
+            padding: 8px;
+            border-radius: 40px;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #FFD700;
+            font-weight: bold;
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #1a1a24, #12121a);
+            padding: 8px;
+            border-radius: 15px;
+            border: 1px solid rgba(255,215,0,0.15);
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            color: #aaa;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .upgrades {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .upgrades::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .upgrades::-webkit-scrollbar-track {
+            background: #1a1a24;
+            border-radius: 10px;
+        }
+
+        .upgrades::-webkit-scrollbar-thumb {
+            background: #FFD700;
+            border-radius: 10px;
+        }
+
+        .upgrade {
+            background: linear-gradient(135deg, #1a1a28, #12121e);
+            border-radius: 18px;
+            padding: 10px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,215,0,0.15);
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .upgrade:active {
+            transform: scale(0.99);
+        }
+
+        .upgrade-info {
+            text-align: left;
+            flex: 2;
+            min-width: 120px;
+        }
+
+        .upgrade-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #FFD700;
+        }
+
+        .upgrade-desc {
+            font-size: 0.65rem;
+            color: #aaa;
+        }
+
+        .upgrade-stats {
+            font-size: 0.7rem;
+            color: #FFA500;
+        }
+
+        .upgrade-cost {
+            background: linear-gradient(135deg, #8B0000, #CC0000);
+            padding: 6px 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #FFD700;
+            font-size: 0.8rem;
+            min-width: 75px;
+            text-align: center;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.1s ease;
+            font-size: 0.8rem;
+            min-width: 70px;
+        }
+
+        .buy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .buy-btn.disabled {
+            background: linear-gradient(135deg, #555, #444);
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #8b3c3c, #6b2c2c);
+            margin-top: 15px;
+            padding: 10px;
+            border: none;
+            border-radius: 35px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .reset-btn:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes float {
+            0% { opacity: 1; transform: translateY(0px) scale(1); }
+            100% { opacity: 0; transform: translateY(-70px) scale(1.1); }
+        }
+
+        .floating-number {
+            position: fixed;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: float 0.7s ease-out forwards;
+            font-family: monospace;
+        }
+
+        @keyframes shakeAnim {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .shake {
+            animation: shakeAnim 0.15s ease-in-out;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #1a1a2e;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-out 2s forwards;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .warning {
+            color: #FF6666;
+            font-size: 0.65rem;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .game {
+                padding: 15px;
+            }
+            
+            .main-button {
+                width: 130px;
+                height: 130px;
+                font-size: 2.5rem;
+            }
+            
+            .balance-amount {
+                font-size: 2.2rem;
+            }
+            
+            .upgrade {
+                padding: 8px 10px;
+            }
+            
+            .upgrade-cost {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+                min-width: 65px;
+            }
+            
+            .buy-btn {
+                padding: 5px 12px;
+                font-size: 0.7rem;
+                min-width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game">
+        <div class="hard-mode-badge">⚠️ ХАРДКОР РЕЖИМ ⚠️</div>
+        <h1>💰 O.A.R.M.M 💰</h1>
+        <div class="sub">экстремальная экономика</div>
+
+        <div class="balance">
+            <div class="balance-label">💰 КАПИТАЛ 💰</div>
+            <div class="balance-amount" id="balance">0</div>
+        </div>
+
+        <div class="click-area">
+            <button class="main-button" id="clickBtn">💎</button>
+            <div class="per-click">
+                ⚡ +<span id="perClick">1</span> за клик
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">КЛИКИ</div>
+                <div class="stat-value" id="totalClicks">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">АВТО/СЕК</div>
+                <div class="stat-value" id="autoIncome">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">НАЙМАНО</div>
+                <div class="stat-value" id="totalUpgrades">0</div>
+            </div>
+        </div>
+
+        <div class="upgrades" id="upgradesList"></div>
+
+        <button class="reset-btn" id="resetBtn">🔄 НОВАЯ ИГРА</button>
+        <div class="warning">💀 Цены: 1к → 5к → 15к → 25к → 50к 💀</div>
+    </div>
+</div>
+
+<script>
+    // ИГРОВЫЕ ДАННЫЕ
+    let money = 0;
+    let clickPower = 1;
+    let totalClicks = 0;
+
+    // Улучшения с увеличенными ценами
+    const upgrades = [
+        { id: 'click1', name: 'Максим', desc: '+5 к клику', baseCost: 1000, power: 5, type: 'click', count: 0, emoji: '🤝' },
+        { id: 'click2', name: 'Родион', desc: '+15 к клику', baseCost: 5000, power: 15, type: 'click', count: 0, emoji: '⚡' },
+        { id: 'click3', name: 'Миша', desc: '+40 к клику', baseCost: 15000, power: 40, type: 'click', count: 0, emoji: '🚀' },
+        { id: 'click4', name: 'Супер-Миша', desc: '+100 к клику', baseCost: 25000, power: 100, type: 'click', count: 0, emoji: '💎' },
+        { id: 'auto1', name: 'Адиль', desc: '+25/сек', baseCost: 8000, power: 25, type: 'auto', count: 0, emoji: '📀' },
+        { id: 'auto2', name: 'Ораз', desc: '+100/сек', baseCost: 50000, power: 100, type: 'auto', count: 0, emoji: '🏭' }
+    ];
+
+    function getCost(upgrade) {
+        return Math.floor(upgrade.baseCost + (upgrade.count * upgrade.baseCost * 0.5));
+    }
+
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+        return Math.floor(num).toString();
+    }
+
+    function saveGame() {
+        const saveData = {
+            money: money,
+            clickPower: clickPower,
+            totalClicks: totalClicks,
+            upgrades: upgrades.map(up => ({ count: up.count }))
+        };
+        localStorage.setItem('makeMoreHardSave', JSON.stringify(saveData));
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('makeMoreHardSave');
+        if (!saved) return false;
+        try {
+            const data = JSON.parse(saved);
+            money = data.money;
+            clickPower = data.clickPower;
+            totalClicks = data.totalClicks || 0;
+            if(data.upgrades && data.upgrades.length === upgrades.length) {
+                for(let i = 0; i < upgrades.length; i++) {
+                    upgrades[i].count = data.upgrades[i].count;
+                }
+            }
+            let newClickPower = 1;
+            for(let up of upgrades) {
+                if(up.type === 'click') {
+                    newClickPower += up.count * up.power;
+                }
+            }
+            clickPower = newClickPower;
+            return true;
+        } catch(e) { return false; }
+    }
+
+    function showNotification(text, isError = false) {
+        const notification = document.createElement('div');
+        notification.className = 'notification';
+        notification.style.background = isError ? 'linear-gradient(135deg, #FF4444, #CC0000)' : 'linear-gradient(135deg, #FFD700, #FFA500)';
+        notification.style.color = isError ? 'white' : '#1a1a2e';
+        notification.innerText = text;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 2300);
+    }
+
+    let autoInterval = null;
+
+    function updateUI() {
+        document.getElementById('balance').innerText = formatNumber(money);
+        document.getElementById('perClick').innerText = clickPower;
+        document.getElementById('totalClicks').innerText = totalClicks;
+        
+        let autoIncome = 0;
+        let totalUpgradeCount = 0;
+        for(let up of upgrades) {
+            if(up.type === 'auto') {
+                autoIncome += up.count * up.power;
+            }
+            totalUpgradeCount += up.count;
+        }
+        document.getElementById('autoIncome').innerText = autoIncome;
+        document.getElementById('totalUpgrades').innerText = totalUpgradeCount;
+
+        const container = document.getElementById('upgradesList');
+        container.innerHTML = '';
+        for(let up of upgrades) {
+            const cost = getCost(up);
+            const canBuy = money >= cost;
+            const div = document.createElement('div');
+            div.className = 'upgrade';
+            div.innerHTML = `
+                <div class="upgrade-info">
+                    <div class="upgrade-name">${up.emoji} ${up.name}</div>
+                    <div class="upgrade-desc">${up.desc}</div>
+                    <div class="upgrade-stats">ур.${up.count} | +${up.power}</div>
+                </div>
+                <div class="upgrade-cost">💰 ${formatNumber(cost)}</div>
+                <button class="buy-btn ${canBuy ? '' : 'disabled'}" data-id="${up.id}">Нанять</button>
+            `;
+            container.appendChild(div);
+        }
+
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = btn.getAttribute('data-id');
+                const upgrade = upgrades.find(u => u.id === id);
+                if(upgrade) buyUpgrade(upgrade);
+            });
+        });
+    }
+
+    function buyUpgrade(upgrade) {
+        const cost = getCost(upgrade);
+        if(money >= cost) {
+            money -= cost;
+            upgrade.count++;
+            
+            if(upgrade.type === 'click') {
+                clickPower += upgrade.power;
+                showNotification(`✅ ${upgrade.name} нанят! +${upgrade.power} к клику`);
+            } else {
+                showNotification(`✅ ${upgrade.name} улучшен! +${upgrade.power}/сек`);
+            }
+            
+            updateUI();
+            saveGame();
+            showFloatingText(`+${upgrade.power}`, document.getElementById('clickBtn'));
+        } else {
+            const btn = document.querySelector(`.buy-btn[data-id="${upgrade.id}"]`);
+            if(btn) {
+                btn.classList.add('shake');
+                setTimeout(() => btn.classList.remove('shake'), 200);
+            }
+            showNotification(`❌ Не хватает ${formatNumber(cost - money)} монет`, true);
+        }
+    }
+
+    function handleClick() {
+        money += clickPower;
+        totalClicks++;
+        updateUI();
+        saveGame();
+        showFloatingText(`+${clickPower}`, document.getElementById('clickBtn'));
+        const btn = document.getElementById('clickBtn');
+        btn.style.transform = 'scale(0.96)';
+        setTimeout(() => btn.style.transform = '', 80);
+    }
+
+    function showFloatingText(text, originElement) {
+        const rect = originElement.getBoundingClientRect();
+        const div = document.createElement('div');
+        div.className = 'floating-number';
+        div.innerText = text;
+        div.style.left = (rect.left + rect.width / 2 - 20) + 'px';
+        div.style.top = (rect.top - 20) + 'px';
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 700);
+    }
+
+    function startAutoIncome() {
+        if(autoInterval) clearInterval(autoInterval);
+        autoInterval = setInterval(() => {
+            let autoMoney = 0;
+            for(let up of upgrades) {
+                if(up.type === 'auto') {
+                    autoMoney += up.count * up.power;
+                }
+            }
+            if(autoMoney > 0) {
+                money += autoMoney;
+                updateUI();
+                saveGame();
+            }
+        }, 1000);
+    }
+
+    function resetGame() {
+        if(confirm('💀 Начать игру заново? Весь прогресс будет сброшен! 💀')) {
+            money = 0;
+            clickPower = 1;
+            totalClicks = 0;
+            for(let up of upgrades) {
+                up.count = 0;
+            }
+            updateUI();
+            saveGame();
+            showNotification('🔄 Игра перезапущена! Удачи!');
+        }
+    }
+
+    function init() {
+        loadGame();
+        updateUI();
+        startAutoIncome();
+        
+        document.getElementById('clickBtn').addEventListener('click', handleClick);
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        window.addEventListener('beforeunload', () => saveGame());
+        
+        setTimeout(() => {
+            showNotification('💎 Начни кликать! Цели: 1к → 5к → 15к → 25к → 50к');
+        }, 500);
+    }
+
+    init();
+</script>
+</body>
+</html>
